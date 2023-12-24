@@ -4,27 +4,13 @@ from pte.text_buffer import TextBuffer
 
 
 class View:
-    def __init__(self) -> None:
-        self._stdscr: curses.window = None  # type: ignore
+    def __init__(self, stdscr: curses.window) -> None:
+        self._stdscr = stdscr
 
         self._text_buffer: TextBuffer | None
         self._window: tuple[int, int] = (0, 0)
         self._line: int = 0
         self._column: int = 0
-
-    def __enter__(self):
-        self._stdscr = curses.initscr()
-        curses.noecho()
-        # curses.curs_set(False)
-        curses.cbreak()
-        self._stdscr.keypad(True)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        curses.nocbreak()
-        self._stdscr.keypad(False)
-        curses.echo()
-        curses.endwin()
 
     def set_text_buffer(self, text_buffer: TextBuffer) -> None:
         self._text_buffer = text_buffer
@@ -57,6 +43,39 @@ class View:
         curses.setsyx(self._line, self._column)
         curses.doupdate()
 
+    def move_up(self, lines=1) -> None:
+        self.set_cursor(self._line - lines, self._column)
 
-    def input(self) -> str:
-        return self._stdscr.getkey()
+    def move_down(self, lines=1) -> None:
+        self.set_cursor(self._line + lines, self._column)
+
+    def move_left(self, columns=1) -> None:
+        self.set_cursor(self._line, self._column - columns)
+
+    def move_right(self, columns=1) -> None:
+        self.set_cursor(self._line, self._column + columns)
+
+    def set_column(self, column) -> None:
+        self.set_cursor(self._line, column)
+
+    def set_cursor(self, line, column) -> None:
+        if self._text_buffer is None:
+            return
+
+        line = max(0, min(self._text_buffer.number_of_lines() - 1, line))
+        self._line = line
+
+        first, last = self._window
+        if self._line >= last:
+            overflow = self._line - last + 1
+            self._window = (first + overflow, last + overflow)
+        elif self._line < first:
+            overflow = first - self._line
+            self._window = (first - overflow, last - overflow)
+
+        if column < 0:
+            column = len(self._text_buffer.get_line(self._line)) - 2 - column
+
+        self._column = max(
+            0, min(column, len(self._text_buffer.get_line(self._line)) - 2)
+        )
