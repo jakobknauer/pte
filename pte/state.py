@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 import logging
 
 
@@ -9,7 +8,11 @@ class State(ABC):
         self._logger = logger or logging.getLogger()
 
     @abstractmethod
-    def run(self) -> Optional["State"]:
+    def draw(self) -> None:
+        ...
+
+    @abstractmethod
+    def update(self) -> "State":
         ...
 
     def __repr__(self) -> str:

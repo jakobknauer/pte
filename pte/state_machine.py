@@ -15,12 +15,20 @@ class StateMachine:
         self.info(f"Initial state: {self._state}.")
 
         while self._state:
-            self.info(f"Run {self._state}.")
+            self.info(f"Draw {self._state}.")
             try:
-                next_state = self._state.run()
+                self._state.draw()
             except:
-                self.error(f"An error occured in {self._state}.", exc_info=True)
+                self.error(f"An error occured in {self._state}.draw().", exc_info=True)
                 raise
+
+            self.info(f"Update {self._state}.")
+            try:
+                next_state = self._state.update()
+            except:
+                self.error(f"An error occured in {self._state}.update().", exc_info=True)
+                raise
+
             self.info(f"Transition from {self._state} to {next_state}.")
             self._state = next_state
 
