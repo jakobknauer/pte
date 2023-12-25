@@ -11,6 +11,9 @@ from pte import modes
 
 def main(stdscr: curses.window):
     curses.set_escdelay(1)
+    curses.use_default_colors()
+    for i in range(0, curses.COLORS):
+        curses.init_pair(i + 1, i, -1)
 
     view = View(stdscr)
     command_buffer = CommandBuffer(stdscr)

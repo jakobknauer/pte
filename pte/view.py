@@ -43,7 +43,12 @@ class View:
                 screen_line_number, 0, self._text_buffer.get_line(buffer_line_number)
             )
 
-        self._stdscr.addstr(self._bottom_line_index, 0, bottom_line_left)
+        self._stdscr.addstr(
+            self._bottom_line_index,
+            0,
+            f" {bottom_line_left} ",
+            curses.color_pair(7) ^ curses.A_REVERSE ^ curses.A_BOLD,
+        )
         self._stdscr.addstr(
             self._bottom_line_index,
             self.get_screen_width() - 1 - len(bottom_line_right),
