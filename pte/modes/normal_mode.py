@@ -14,7 +14,8 @@ class NormalMode(State):
         self._view.set_text_buffer(self._text_buffer)
         self._command_buffer = command_buffer
 
-        self._insert_mode: State | None = None
+        self._insert_mode: State
+        self._command_mode: State
 
     def draw(self) -> None:
         self._view.draw(
@@ -55,6 +56,9 @@ class NormalMode(State):
             case ["i"]:
                 self._command_buffer.clear()
                 return self._insert_mode
+            case [":"]:
+                self._command_buffer.clear()
+                return self._command_mode
             case ["Z", "Z"]:
                 return None
             case ["Z"]:
@@ -65,3 +69,6 @@ class NormalMode(State):
 
     def set_insert_mode(self, insert_mode: State) -> None:
         self._insert_mode = insert_mode
+
+    def set_command_mode(self, command_mode: State) -> None:
+        self._command_mode = command_mode

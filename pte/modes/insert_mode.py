@@ -21,7 +21,7 @@ class InsertMode(State):
         self._view.set_text_buffer(self._text_buffer)
         self._command_buffer: CommandBuffer = command_buffer
 
-        self._normal_mode: State | None = None
+        self._normal_mode: State
 
     def draw(self) -> None:
         self._view.draw(

@@ -7,12 +7,13 @@ class View:
     def __init__(self, stdscr: curses.window) -> None:
         self._stdscr = stdscr
 
-        self._text_buffer: TextBuffer | None
+        self._text_buffer: TextBuffer
         self._visible_lines: tuple[int, int] = (0, 0)
         self._line: int = 0
         self._column: int = 0
 
-        self._bottom_line_index: int = 0
+        self._status_line_index: int
+        self._command_line_index: int
 
     def set_text_buffer(self, text_buffer: TextBuffer) -> None:
         self._text_buffer = text_buffer
@@ -22,11 +23,18 @@ class View:
         screen_height, _ = self._stdscr.getmaxyx()
         buffer_size = text_buffer.number_of_lines()
 
-        self._visible_lines = (0, min(screen_height - 2, buffer_size))
+        self._visible_lines = (0, min(screen_height - 3, buffer_size))
 
-        self._bottom_line_index = screen_height - 1
+        self._status_line_index = screen_height - 2
+        self._command_line_index = screen_height - 1
 
-    def draw(self, *, bottom_line_left: str = "", bottom_line_right: str = "") -> None:
+    def draw(
+        self,
+        *,
+        bottom_line_left: str = "",
+        bottom_line_right: str = "",
+        command_line: str = "",
+    ) -> None:
         if self._stdscr is None:
             return
 
@@ -43,15 +51,21 @@ class View:
             self._stdscr.addstr(screen_line_number, 0, line)
 
         self._stdscr.addstr(
-            self._bottom_line_index,
+            self._status_line_index,
             0,
             f" {bottom_line_left} ",
             curses.color_pair(7) ^ curses.A_REVERSE ^ curses.A_BOLD,
         )
         self._stdscr.addstr(
-            self._bottom_line_index,
+            self._status_line_index,
             self.get_screen_width() - 1 - len(bottom_line_right),
             bottom_line_right,
+        )
+
+        self._stdscr.addstr(
+            self._command_line_index,
+            0,
+            command_line,
         )
 
         self._stdscr.noutrefresh()
