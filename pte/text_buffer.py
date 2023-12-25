@@ -19,7 +19,16 @@ class TextBuffer:
         line = line[:column_number] + text + line[column_number:]
         self._lines[line_number] = line
 
+    def delete_in_line(
+        self, line_number: int, column_number: int, count: int = 1
+    ) -> None:
+        if column_number < 0:
+            return
+        line = self._lines[line_number]
+        line = line[:column_number] + line[column_number + count :]
+        self._lines[line_number] = line
+
     @staticmethod
     def from_file(fp: TextIO) -> "TextBuffer":
-        lines = fp.readlines()
+        lines = fp.read().splitlines()
         return TextBuffer(lines)

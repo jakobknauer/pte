@@ -39,9 +39,8 @@ class View:
         for screen_line_number, buffer_line_number in zip(
             range(last - first), range(first, last)
         ):
-            self._stdscr.addstr(
-                screen_line_number, 0, self._text_buffer.get_line(buffer_line_number)
-            )
+            line = self._text_buffer.get_line(buffer_line_number)
+            self._stdscr.addstr(screen_line_number, 0, line)
 
         self._stdscr.addstr(
             self._bottom_line_index,
@@ -90,10 +89,10 @@ class View:
             self._visible_lines = (first - overflow, last - overflow)
 
         if column < 0:
-            column = len(self._text_buffer.get_line(self._line)) - 2 - column
+            column = len(self._text_buffer.get_line(self._line)) - 1 - column
 
         self._column = max(
-            0, min(column, len(self._text_buffer.get_line(self._line)) - 2)
+            0, min(column, len(self._text_buffer.get_line(self._line)) - 1)
         )
 
     def get_column(self) -> int:
