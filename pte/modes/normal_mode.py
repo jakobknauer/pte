@@ -12,10 +12,12 @@ class NormalMode(State):
         self._view.set_text_buffer(self._text_buffer)
         self._command_buffer = command_buffer
 
-    def draw(self) -> None:
-        self._view.draw()
+        self._insert_mode: State | None = None
 
-    def update(self) -> State:
+    def draw(self) -> None:
+        self._view.draw(self._name)
+
+    def update(self) -> State | None:
         self._command_buffer.read()
 
         match self._command_buffer.get_store():
@@ -45,6 +47,9 @@ class NormalMode(State):
                 self._view.set_column(-1)
                 self._command_buffer.clear()
                 return self
+            case ["i"]:
+                self._command_buffer.clear()
+                return self._insert_mode
             case ["Z","Z"]:
                 return None
             case ["Z"]:
@@ -52,3 +57,6 @@ class NormalMode(State):
             case _:
                 self._command_buffer.clear()
                 return self
+
+    def set_insert_mode(self, insert_mode: State) -> None:
+        self._insert_mode = insert_mode

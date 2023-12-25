@@ -12,6 +12,8 @@ class View:
         self._line: int = 0
         self._column: int = 0
 
+        self._bottom_line_index: int = 0
+
     def set_text_buffer(self, text_buffer: TextBuffer) -> None:
         self._text_buffer = text_buffer
 
@@ -20,9 +22,11 @@ class View:
         screen_height, _ = self._stdscr.getmaxyx()
         buffer_size = text_buffer.number_of_lines()
 
-        self._window = (0, min(screen_height, buffer_size))
+        self._window = (0, min(screen_height - 2, buffer_size))
 
-    def draw(self) -> None:
+        self._bottom_line_index = screen_height - 1
+
+    def draw(self, bottom_line: str) -> None:
         if self._stdscr is None:
             return
 
@@ -38,6 +42,8 @@ class View:
             self._stdscr.addstr(
                 screen_line_number, 0, self._text_buffer.get_line(buffer_line_number)
             )
+
+        self._stdscr.addstr(self._bottom_line_index, 0, bottom_line)
 
         self._stdscr.noutrefresh()
         curses.setsyx(self._line, self._column)

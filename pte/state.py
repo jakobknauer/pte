@@ -12,7 +12,7 @@ class State(ABC):
         ...
 
     @abstractmethod
-    def update(self) -> "State":
+    def update(self) -> "State | None":
         ...
 
     def __repr__(self) -> str:

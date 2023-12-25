@@ -17,6 +17,9 @@ def main(stdscr):
         text_buffer = TextBuffer.from_file(fp)
 
     normal = modes.NormalMode(text_buffer, view, command_buffer)
+    insert = modes.InsertMode(text_buffer, view, command_buffer)
+
+    normal.set_insert_mode(insert)
 
     state_machine = StateMachine()
     state_machine.set_state(normal)
