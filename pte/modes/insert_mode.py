@@ -17,7 +17,7 @@ class InsertMode(State):
         self._normal_mode: State | None = None
 
     def draw(self) -> None:
-        self._view.draw(f"{self._name}\t{self._command_buffer.get_store()}")
+        self._view.draw(bottom_line_left=self._name)
 
     def update(self) -> State | None:
         self._command_buffer.read()

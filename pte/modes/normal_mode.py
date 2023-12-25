@@ -5,7 +5,9 @@ from pte.command_buffer import CommandBuffer
 
 
 class NormalMode(State):
-    def __init__(self, text_buffer: TextBuffer, view: View, command_buffer: CommandBuffer):
+    def __init__(
+        self, text_buffer: TextBuffer, view: View, command_buffer: CommandBuffer
+    ):
         super().__init__(name="NORMAL MODE")
         self._text_buffer = text_buffer
         self._view = view
@@ -15,7 +17,10 @@ class NormalMode(State):
         self._insert_mode: State | None = None
 
     def draw(self) -> None:
-        self._view.draw(self._name)
+        self._view.draw(
+            bottom_line_left=self._name,
+            bottom_line_right="".join(self._command_buffer.get_store()),
+        )
 
     def update(self) -> State | None:
         self._command_buffer.read()
@@ -50,7 +55,7 @@ class NormalMode(State):
             case ["i"]:
                 self._command_buffer.clear()
                 return self._insert_mode
-            case ["Z","Z"]:
+            case ["Z", "Z"]:
                 return None
             case ["Z"]:
                 return self

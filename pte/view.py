@@ -8,7 +8,7 @@ class View:
         self._stdscr = stdscr
 
         self._text_buffer: TextBuffer | None
-        self._window: tuple[int, int] = (0, 0)
+        self._visible_lines: tuple[int, int] = (0, 0)
         self._line: int = 0
         self._column: int = 0
 
@@ -22,11 +22,11 @@ class View:
         screen_height, _ = self._stdscr.getmaxyx()
         buffer_size = text_buffer.number_of_lines()
 
-        self._window = (0, min(screen_height - 2, buffer_size))
+        self._visible_lines = (0, min(screen_height - 2, buffer_size))
 
         self._bottom_line_index = screen_height - 1
 
-    def draw(self, bottom_line: str) -> None:
+    def draw(self, *, bottom_line_left: str = "", bottom_line_right: str = "") -> None:
         if self._stdscr is None:
             return
 
@@ -35,7 +35,7 @@ class View:
         if self._text_buffer is None:
             return
 
-        first, last = self._window
+        first, last = self._visible_lines
         for screen_line_number, buffer_line_number in zip(
             range(last - first), range(first, last)
         ):
@@ -43,7 +43,12 @@ class View:
                 screen_line_number, 0, self._text_buffer.get_line(buffer_line_number)
             )
 
-        self._stdscr.addstr(self._bottom_line_index, 0, bottom_line)
+        self._stdscr.addstr(self._bottom_line_index, 0, bottom_line_left)
+        self._stdscr.addstr(
+            self._bottom_line_index,
+            self.get_screen_width() - 1 - len(bottom_line_right),
+            bottom_line_right,
+        )
 
         self._stdscr.noutrefresh()
         curses.setsyx(self._line, self._column)
@@ -71,13 +76,13 @@ class View:
         line = max(0, min(self._text_buffer.number_of_lines() - 1, line))
         self._line = line
 
-        first, last = self._window
+        first, last = self._visible_lines
         if self._line >= last:
             overflow = self._line - last + 1
-            self._window = (first + overflow, last + overflow)
+            self._visible_lines = (first + overflow, last + overflow)
         elif self._line < first:
             overflow = first - self._line
-            self._window = (first - overflow, last - overflow)
+            self._visible_lines = (first - overflow, last - overflow)
 
         if column < 0:
             column = len(self._text_buffer.get_line(self._line)) - 2 - column
@@ -91,3 +96,6 @@ class View:
 
     def get_line(self) -> int:
         return self._line
+
+    def get_screen_width(self) -> int:
+        return self._stdscr.getmaxyx()[1]
