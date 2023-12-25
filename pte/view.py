@@ -56,7 +56,7 @@ class View:
         self.set_cursor(self._line + lines, self._column)
 
     def move_left(self, columns=1) -> None:
-        self.set_cursor(self._line, self._column - columns)
+        self.set_cursor(self._line, max(0, self._column - columns))
 
     def move_right(self, columns=1) -> None:
         self.set_cursor(self._line, self._column + columns)
@@ -85,3 +85,9 @@ class View:
         self._column = max(
             0, min(column, len(self._text_buffer.get_line(self._line)) - 2)
         )
+
+    def get_column(self) -> int:
+        return self._column
+
+    def get_line(self) -> int:
+        return self._line

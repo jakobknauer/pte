@@ -1,5 +1,3 @@
-import curses.ascii
-
 from pte.state import State
 from pte.text_buffer import TextBuffer
 from pte.view import View
@@ -23,10 +21,21 @@ class InsertMode(State):
 
     def update(self) -> State | None:
         self._command_buffer.read()
-        match self._command_buffer.get_store():
+        store = self._command_buffer.get_store()
+        match store:
             case ["\x1b"]:
                 self._command_buffer.clear()
+                self._view.move_left()
                 return self._normal_mode
+            case [str(c)] if len(c) == 1 and (c.isalnum() or c == " "):
+                self._command_buffer.clear()
+                self._text_buffer.insert(
+                    line_number=self._view.get_line(),
+                    column_number=self._view.get_column(),
+                    text=c
+                )
+                self._view.move_right(1)
+                return self
             case _:
                 self._command_buffer.clear()
                 return self

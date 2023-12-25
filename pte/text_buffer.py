@@ -14,6 +14,11 @@ class TextBuffer:
     def __iter__(self):
         return iter(self._lines)
 
+    def insert(self, line_number: int, column_number: int, text: str) -> None:
+        line = self._lines[line_number]
+        line = line[:column_number] + text + line[column_number:]
+        self._lines[line_number] = line
+
     @staticmethod
     def from_file(fp: TextIO) -> "TextBuffer":
         lines = fp.readlines()
