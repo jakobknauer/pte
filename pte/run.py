@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from curses import wrapper
+import curses
 
 from pte.state_machine import StateMachine
 from pte.text_buffer import TextBuffer
@@ -9,7 +9,9 @@ from pte.command_buffer import CommandBuffer
 from pte import modes
 
 
-def main(stdscr):
+def main(stdscr: curses.window):
+    curses.set_escdelay(1)
+
     view = View(stdscr)
     command_buffer = CommandBuffer(stdscr)
 
@@ -20,6 +22,7 @@ def main(stdscr):
     insert = modes.InsertMode(text_buffer, view, command_buffer)
 
     normal.set_insert_mode(insert)
+    insert.set_normal_mode(normal)
 
     state_machine = StateMachine()
     state_machine.set_state(normal)
@@ -27,4 +30,4 @@ def main(stdscr):
 
 
 if __name__ == "__main__":
-    wrapper(main)
+    curses.wrapper(main)
