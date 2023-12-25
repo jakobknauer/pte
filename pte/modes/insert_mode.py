@@ -1,3 +1,5 @@
+import string
+
 from pte.state import State
 from pte.text_buffer import TextBuffer
 from pte.view import View
@@ -36,7 +38,7 @@ class InsertMode(State):
                 self._command_buffer.clear()
                 self._view.move_left()
                 return self._normal_mode
-            case [str(c)] if len(c) == 1 and (c.isalnum() or c == " "):
+            case [str(c)] if len(c) == 1 and c in string.printable:
                 self._command_buffer.clear()
                 self._text_buffer.insert(
                     line_number=self._view.get_line(),
