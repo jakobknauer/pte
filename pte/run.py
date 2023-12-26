@@ -6,7 +6,6 @@ import logging
 from pte import modes
 from pte.text_buffer import TextBuffer
 from pte.view import MainView
-from pte.command_buffer import CommandBuffer
 
 
 log = logging.getLogger(__name__)
@@ -33,9 +32,7 @@ def main(stdscr: curses.window):
     curses.use_default_colors()
     for i in range(0, curses.COLORS):
         curses.init_pair(i + 1, i, -1)
-
     view = MainView(stdscr)
-    command_buffer = CommandBuffer(stdscr)
 
     log.info("Reading file...")
 
@@ -44,9 +41,9 @@ def main(stdscr: curses.window):
 
     log.info("Setting up modes...")
 
-    normal = modes.NormalMode(text_buffer, view, command_buffer)
-    insert = modes.InsertMode(text_buffer, view, command_buffer)
-    command = modes.CommandMode(text_buffer, view, command_buffer)
+    normal = modes.NormalMode(text_buffer, view)
+    insert = modes.InsertMode(text_buffer, view)
+    command = modes.CommandMode(text_buffer, view)
 
     log.info("Start mode machine.")
 

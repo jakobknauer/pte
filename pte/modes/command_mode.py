@@ -1,6 +1,5 @@
 from pte.text_buffer import TextBuffer
 from pte.view import MainView
-from pte.command_buffer import CommandBuffer
 
 from .mode import Mode
 from .transition import Transition, TransitionType
@@ -11,13 +10,11 @@ ENTER = ["KEY_ENTER", "\n", "\r"]
 
 
 class CommandMode(Mode):
-    def __init__(
-        self, text_buffer: TextBuffer, view: MainView, command_buffer: CommandBuffer
-    ):
+    def __init__(self, text_buffer: TextBuffer, view: MainView):
         super().__init__(name="COMMAND MODE")
         self._text_buffer = text_buffer
         self._view = view
-        self._command_buffer: CommandBuffer = command_buffer
+        self._command_buffer: list[str] = []
 
     def enter(self) -> None:
         self._view.text_buffer_view.status = self.name
@@ -30,14 +27,13 @@ class CommandMode(Mode):
         self._view.command_line_view.clear()
 
     def draw(self) -> None:
-        self._view.command_line_view.command = "".join(self._command_buffer.get_store())
+        self._view.command_line_view.command = "".join(self._command_buffer)
         self._view.draw()
 
     def update(self) -> Transition:
-        self._command_buffer.read()
-        command = self._command_buffer.get_store()
+        self._command_buffer.append(self._view.read())
 
-        match command:
+        match self._command_buffer:
             case [*_, c] if c == ESCAPE:
                 self._command_buffer.clear()
                 return (TransitionType.SWITCH, "NORMAL MODE")

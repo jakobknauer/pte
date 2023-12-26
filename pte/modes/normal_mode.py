@@ -1,20 +1,17 @@
 from pte.text_buffer import TextBuffer
 from pte.view import MainView
-from pte.command_buffer import CommandBuffer
 
 from .mode import Mode
 from .transition import Transition, TransitionType
 
 
 class NormalMode(Mode):
-    def __init__(
-        self, text_buffer: TextBuffer, view: MainView, command_buffer: CommandBuffer
-    ):
+    def __init__(self, text_buffer: TextBuffer, view: MainView):
         super().__init__(name="NORMAL MODE")
         self._text_buffer = text_buffer
         self._view = view
         self._view.text_buffer_view.set_text_buffer(self._text_buffer)
-        self._command_buffer = command_buffer
+        self._command_buffer: list[str] = []
 
     def enter(self) -> None:
         self._view.text_buffer_view.status = self.name
@@ -24,15 +21,13 @@ class NormalMode(Mode):
         self._command_buffer.clear()
 
     def draw(self) -> None:
-        self._view.draw(
-            bottom_line_right="".join(self._command_buffer.get_store()),
-        )
+        self._view.draw(bottom_line_right="".join(self._command_buffer))
 
     def update(self) -> Transition:
-        self._command_buffer.read()
+        self._command_buffer.append(self._view.read())
         text_buffer_view = self._view.text_buffer_view
 
-        match self._command_buffer.get_store():
+        match self._command_buffer:
             case ["q"]:
                 return None
             case ["k"]:

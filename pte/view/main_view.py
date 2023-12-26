@@ -19,3 +19,6 @@ class MainView:
         self.text_buffer_view.draw(bottom_line_right=bottom_line_right)
         self.command_line_view.draw()
         curses.doupdate()
+
+    def read(self) -> str:
+        return self._window.getkey()
