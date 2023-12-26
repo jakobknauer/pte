@@ -1,14 +1,16 @@
-from pte.state import State
 from pte.text_buffer import TextBuffer
 from pte.view import MainView
 from pte.command_buffer import CommandBuffer
+
+from .mode import Mode
+from .transition import Transition, TransitionType
 
 
 ESCAPE = "\x1b"
 ENTER = ["KEY_ENTER", "\n", "\r"]
 
 
-class CommandMode(State):
+class CommandMode(Mode):
     def __init__(
         self, text_buffer: TextBuffer, view: MainView, command_buffer: CommandBuffer
     ):
@@ -17,27 +19,26 @@ class CommandMode(State):
         self._view = view
         self._command_buffer: CommandBuffer = command_buffer
 
-        self._normal_mode: State
+    def enter(self) -> None:
+        self._view.command_line_view.active = True
+
+    def leave(self) -> None:
+        self._view.command_line_view.active = False
 
     def draw(self) -> None:
         self._view.command_line_view.command = "".join(self._command_buffer.get_store())
-        self._view.command_line_view.active = True
+        self._view.draw(bottom_line_left=self.name)
 
-        self._view.draw(bottom_line_left=self._name)
-
-    def update(self) -> State | None:
+    def update(self) -> Transition:
         self._command_buffer.read()
         command = self._command_buffer.get_store()
 
         match command:
             case [*_, c] if c == ESCAPE:
                 self._command_buffer.clear()
-                return self._normal_mode
+                return (TransitionType.SWITCH, "NORMAL MODE")
             case [*_, c] if c in ENTER:
                 self._command_buffer.clear()
-                return self._normal_mode
+                return (TransitionType.SWITCH, "NORMAL MODE")
             case _:
-                return self
-
-    def set_normal_mode(self, normal_mode: State) -> None:
-        self._normal_mode = normal_mode
+                return TransitionType.STAY

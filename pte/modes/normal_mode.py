@@ -1,10 +1,12 @@
-from pte.state import State
 from pte.text_buffer import TextBuffer
 from pte.view import MainView
 from pte.command_buffer import CommandBuffer
 
+from .mode import Mode
+from .transition import Transition, TransitionType
 
-class NormalMode(State):
+
+class NormalMode(Mode):
     def __init__(
         self, text_buffer: TextBuffer, view: MainView, command_buffer: CommandBuffer
     ):
@@ -14,16 +16,19 @@ class NormalMode(State):
         self._view.text_buffer_view.set_text_buffer(self._text_buffer)
         self._command_buffer = command_buffer
 
-        self._insert_mode: State
-        self._command_mode: State
+    def enter(self) -> None:
+        ...
+
+    def leave(self) -> None:
+        self._command_buffer.clear()
 
     def draw(self) -> None:
         self._view.draw(
-            bottom_line_left=self._name,
+            bottom_line_left=self.name,
             bottom_line_right="".join(self._command_buffer.get_store()),
         )
 
-    def update(self) -> State | None:
+    def update(self) -> Transition:
         self._command_buffer.read()
         text_buffer_view = self._view.text_buffer_view
 
@@ -33,43 +38,37 @@ class NormalMode(State):
             case ["k"]:
                 text_buffer_view.move_up()
                 self._command_buffer.clear()
-                return self
+                return TransitionType.STAY
             case ["j"]:
                 text_buffer_view.move_down()
                 self._command_buffer.clear()
-                return self
+                return TransitionType.STAY
             case ["h"]:
                 text_buffer_view.move_left()
                 self._command_buffer.clear()
-                return self
+                return TransitionType.STAY
             case ["l"]:
                 text_buffer_view.move_right()
                 self._command_buffer.clear()
-                return self
+                return TransitionType.STAY
             case ["0"]:
                 text_buffer_view.set_column(0)
                 self._command_buffer.clear()
-                return self
+                return TransitionType.STAY
             case ["$"]:
                 text_buffer_view.set_column(-1)
                 self._command_buffer.clear()
-                return self
+                return TransitionType.STAY
             case ["i"]:
                 self._command_buffer.clear()
-                return self._insert_mode
+                return (TransitionType.SWITCH, "INSERT MODE")
             case [":"]:
                 self._command_buffer.clear()
-                return self._command_mode
+                return (TransitionType.SWITCH, "COMMAND MODE")
             case ["Z", "Z"]:
-                return None
+                return TransitionType.QUIT
             case ["Z"]:
-                return self
+                return TransitionType.STAY
             case _:
                 self._command_buffer.clear()
-                return self
-
-    def set_insert_mode(self, insert_mode: State) -> None:
-        self._insert_mode = insert_mode
-
-    def set_command_mode(self, command_mode: State) -> None:
-        self._command_mode = command_mode
+                return TransitionType.STAY

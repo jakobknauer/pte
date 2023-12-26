@@ -2,11 +2,10 @@
 
 import curses
 
-from pte.state_machine import StateMachine
+from pte import modes
 from pte.text_buffer import TextBuffer
 from pte.view import MainView
 from pte.command_buffer import CommandBuffer
-from pte import modes
 
 
 def main(stdscr: curses.window):
@@ -25,14 +24,9 @@ def main(stdscr: curses.window):
     insert = modes.InsertMode(text_buffer, view, command_buffer)
     command = modes.CommandMode(text_buffer, view, command_buffer)
 
-    normal.set_insert_mode(insert)
-    normal.set_command_mode(command)
-    insert.set_normal_mode(normal)
-    command.set_normal_mode(normal)
-
-    state_machine = StateMachine()
-    state_machine.set_state(normal)
-    state_machine.run()
+    mode_machine = modes.ModeMachine(normal, insert, command)
+    mode_machine.switch_mode(normal)
+    mode_machine.run()
 
 
 if __name__ == "__main__":
