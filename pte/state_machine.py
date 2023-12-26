@@ -26,7 +26,9 @@ class StateMachine:
             try:
                 next_state = self._state.update()
             except:
-                self.error(f"An error occured in {self._state}.update().", exc_info=True)
+                self.error(
+                    f"An error occured in {self._state}.update().", exc_info=True
+                )
                 raise
 
             self.info(f"Transition from {self._state} to {next_state}.")

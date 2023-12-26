@@ -4,7 +4,7 @@ import curses
 
 from pte.state_machine import StateMachine
 from pte.text_buffer import TextBuffer
-from pte.view import View
+from pte.view import MainView
 from pte.command_buffer import CommandBuffer
 from pte import modes
 
@@ -15,7 +15,7 @@ def main(stdscr: curses.window):
     for i in range(0, curses.COLORS):
         curses.init_pair(i + 1, i, -1)
 
-    view = View(stdscr)
+    view = MainView(stdscr)
     command_buffer = CommandBuffer(stdscr)
 
     with open("example.txt") as fp:

@@ -1,17 +1,17 @@
 from pte.state import State
 from pte.text_buffer import TextBuffer
-from pte.view import View
+from pte.view import MainView
 from pte.command_buffer import CommandBuffer
 
 
 class NormalMode(State):
     def __init__(
-        self, text_buffer: TextBuffer, view: View, command_buffer: CommandBuffer
+        self, text_buffer: TextBuffer, view: MainView, command_buffer: CommandBuffer
     ):
         super().__init__(name="NORMAL MODE")
         self._text_buffer = text_buffer
         self._view = view
-        self._view.set_text_buffer(self._text_buffer)
+        self._view.text_buffer_view.set_text_buffer(self._text_buffer)
         self._command_buffer = command_buffer
 
         self._insert_mode: State
@@ -25,32 +25,33 @@ class NormalMode(State):
 
     def update(self) -> State | None:
         self._command_buffer.read()
+        text_buffer_view = self._view.text_buffer_view
 
         match self._command_buffer.get_store():
             case ["q"]:
                 return None
             case ["k"]:
-                self._view.move_up()
+                text_buffer_view.move_up()
                 self._command_buffer.clear()
                 return self
             case ["j"]:
-                self._view.move_down()
+                text_buffer_view.move_down()
                 self._command_buffer.clear()
                 return self
             case ["h"]:
-                self._view.move_left()
+                text_buffer_view.move_left()
                 self._command_buffer.clear()
                 return self
             case ["l"]:
-                self._view.move_right()
+                text_buffer_view.move_right()
                 self._command_buffer.clear()
                 return self
             case ["0"]:
-                self._view.set_column(0)
+                text_buffer_view.set_column(0)
                 self._command_buffer.clear()
                 return self
             case ["$"]:
-                self._view.set_column(-1)
+                text_buffer_view.set_column(-1)
                 self._command_buffer.clear()
                 return self
             case ["i"]:

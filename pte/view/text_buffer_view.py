@@ -3,9 +3,9 @@ import curses
 from pte.text_buffer import TextBuffer
 
 
-class View:
-    def __init__(self, stdscr: curses.window) -> None:
-        self._stdscr = stdscr
+class TextBufferView:
+    def __init__(self, window: curses.window) -> None:
+        self._window = window
 
         self._text_buffer: TextBuffer
         self._visible_lines: tuple[int, int] = (0, 0)
@@ -13,62 +13,53 @@ class View:
         self._column: int = 0
 
         self._status_line_index: int
-        self._command_line_index: int
 
     def set_text_buffer(self, text_buffer: TextBuffer) -> None:
         self._text_buffer = text_buffer
 
         self._line = 0
 
-        screen_height, _ = self._stdscr.getmaxyx()
+        screen_height, _ = self._window.getmaxyx()
         buffer_size = text_buffer.number_of_lines()
 
-        self._visible_lines = (0, min(screen_height - 3, buffer_size))
+        self._visible_lines = (0, min(screen_height - 2, buffer_size))
 
-        self._status_line_index = screen_height - 2
-        self._command_line_index = screen_height - 1
+        self._status_line_index = screen_height - 1
 
     def draw(
         self,
         *,
         bottom_line_left: str = "",
         bottom_line_right: str = "",
-        command_line: str = "",
     ) -> None:
-        if self._stdscr is None:
+        if self._window is None:
             return
-
-        self._stdscr.erase()
 
         if self._text_buffer is None:
             return
+
+        self._window.erase()
 
         first, last = self._visible_lines
         for screen_line_number, buffer_line_number in zip(
             range(last - first), range(first, last)
         ):
             line = self._text_buffer.get_line(buffer_line_number)
-            self._stdscr.addstr(screen_line_number, 0, line)
+            self._window.addstr(screen_line_number, 0, line)
 
-        self._stdscr.addstr(
+        self._window.addstr(
             self._status_line_index,
             0,
             f" {bottom_line_left} ",
             curses.color_pair(7) ^ curses.A_REVERSE ^ curses.A_BOLD,
         )
-        self._stdscr.addstr(
+        self._window.addstr(
             self._status_line_index,
             self.get_screen_width() - 1 - len(bottom_line_right),
             bottom_line_right,
         )
 
-        self._stdscr.addstr(
-            self._command_line_index,
-            0,
-            command_line,
-        )
-
-        self._stdscr.noutrefresh()
+        self._window.noutrefresh()
         curses.setsyx(self._line, self._column)
         curses.doupdate()
 
@@ -116,4 +107,4 @@ class View:
         return self._line
 
     def get_screen_width(self) -> int:
-        return self._stdscr.getmaxyx()[1]
+        return self._window.getmaxyx()[1]
