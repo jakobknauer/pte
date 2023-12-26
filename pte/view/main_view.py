@@ -7,6 +7,7 @@ from .command_line_view import CommandLineView
 class MainView:
     def __init__(self, window: curses.window):
         self._window = window
+        self._window.timeout(25)
 
         # pylint: disable=no-member
         text_buffer_window = window.derwin(curses.LINES - 1, curses.COLS, 0, 0)
@@ -16,9 +17,23 @@ class MainView:
         self.command_line_view = CommandLineView(command_line_window)
 
     def draw(self, *, bottom_line_right: str = "") -> None:
+        self._window.noutrefresh()
         self.text_buffer_view.draw(bottom_line_right=bottom_line_right)
         self.command_line_view.draw()
         curses.doupdate()
 
     def read(self) -> str:
-        return self._window.getkey()
+        try:
+            while (key := self._window.getkey()) == "KEY_RESIZE":
+                self.resize()
+        except curses.error:
+            return ""
+        return key
+
+    def resize(self) -> None:
+        curses.update_lines_cols()
+
+        # pylint: disable=no-member
+        self.text_buffer_view._window.resize(curses.LINES - 1, curses.COLS)
+        self.text_buffer_view._status_line_index = curses.LINES - 2
+        self.command_line_view._window.mvwin(curses.LINES-1, 0)
