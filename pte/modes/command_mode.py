@@ -20,14 +20,18 @@ class CommandMode(Mode):
         self._command_buffer: CommandBuffer = command_buffer
 
     def enter(self) -> None:
+        self._view.text_buffer_view.status = self.name
+        self._view.command_line_view.command = ""
         self._view.command_line_view.active = True
 
     def leave(self) -> None:
+        self._view.text_buffer_view.status = f"LEFT {self.name}"
         self._view.command_line_view.active = False
+        self._view.command_line_view.clear()
 
     def draw(self) -> None:
         self._view.command_line_view.command = "".join(self._command_buffer.get_store())
-        self._view.draw(bottom_line_left=self.name)
+        self._view.draw()
 
     def update(self) -> Transition:
         self._command_buffer.read()

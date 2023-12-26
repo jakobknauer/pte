@@ -11,5 +11,11 @@ class CommandLineView:
         if not self.active:
             return
 
+        self._window.erase()
         self._window.addstr(0, 0, f":{self.command}")
+        self._window.noutrefresh()
+
+    def clear(self):
+        self.command = ""
+        self._window.erase()
         self._window.noutrefresh()

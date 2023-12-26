@@ -14,6 +14,8 @@ class TextBufferView:
 
         self._status_line_index: int
 
+        self.status: str = ""
+
     def set_text_buffer(self, text_buffer: TextBuffer) -> None:
         self._text_buffer = text_buffer
 
@@ -26,12 +28,7 @@ class TextBufferView:
 
         self._status_line_index = screen_height - 1
 
-    def draw(
-        self,
-        *,
-        bottom_line_left: str = "",
-        bottom_line_right: str = "",
-    ) -> None:
+    def draw(self, *, bottom_line_right: str = "") -> None:
         if self._window is None:
             return
 
@@ -50,7 +47,7 @@ class TextBufferView:
         self._window.addstr(
             self._status_line_index,
             0,
-            f" {bottom_line_left} ",
+            f" {self.status} ",
             curses.color_pair(7) ^ curses.A_REVERSE ^ curses.A_BOLD,
         )
         self._window.addstr(
@@ -61,7 +58,6 @@ class TextBufferView:
 
         self._window.noutrefresh()
         curses.setsyx(self._line, self._column)
-        curses.doupdate()
 
     def move_up(self, lines=1) -> None:
         self.set_cursor(self._line - lines, self._column)

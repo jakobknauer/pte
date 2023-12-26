@@ -23,16 +23,14 @@ class InsertMode(Mode):
         self._command_buffer: CommandBuffer = command_buffer
 
     def enter(self) -> None:
-        ...
+        self._view.text_buffer_view.status = self.name
 
     def leave(self) -> None:
+        self._view.text_buffer_view.status = f"LEFT {self.name}"
         self._command_buffer.clear()
 
     def draw(self) -> None:
-        self._view.draw(
-            bottom_line_left=self.name,
-            bottom_line_right=str(self._command_buffer.get_store()),
-        )
+        self._view.draw()
 
     def update(self) -> Transition:
         self._command_buffer.read()
