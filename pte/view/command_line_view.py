@@ -19,3 +19,6 @@ class CommandLineView:
         self.command = ""
         self._window.erase()
         self._window.noutrefresh()
+
+    def move(self, y: int, x: int) -> None:
+        self._window.mvwin(y, x)

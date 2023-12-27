@@ -36,4 +36,4 @@ class MainView:
 
         # pylint: disable=no-member
         self.text_buffer_view.set_size(curses.LINES - 1, curses.COLS)
-        self.command_line_view._window.mvwin(curses.LINES - 1, 0)
+        self.command_line_view.move(curses.LINES - 1, 0)
