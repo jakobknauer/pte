@@ -1,5 +1,5 @@
 from pte.text_buffer import TextBuffer
-from pte.view import MainView
+from pte.view import MainView, colors
 
 from .mode import Mode
 from .transition import Transition, TransitionType
@@ -15,6 +15,7 @@ class NormalMode(Mode):
 
     def enter(self) -> None:
         self._view.text_buffer_view.status = self.name
+        self._view.text_buffer_view.status_color = colors.CYAN
 
     def leave(self) -> None:
         self._view.text_buffer_view.status = f"LEFT {self.name}"

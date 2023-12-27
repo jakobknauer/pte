@@ -1,5 +1,5 @@
 from pte.text_buffer import TextBuffer
-from pte.view import MainView
+from pte.view import MainView, colors
 
 from .mode import Mode
 from .transition import Transition, TransitionType
@@ -18,6 +18,7 @@ class CommandMode(Mode):
 
     def enter(self) -> None:
         self._view.text_buffer_view.status = self.name
+        self._view.text_buffer_view.status_color = colors.YELLOW
         self._view.command_line_view.command = ""
         self._view.command_line_view.active = True
 

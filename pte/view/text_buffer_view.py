@@ -1,6 +1,7 @@
 import curses
 
 from pte.text_buffer import TextBuffer
+from . import colors
 
 
 STATUS_LINE_HEIGHT = 1
@@ -14,6 +15,7 @@ class TextBufferView:
         # view content
         self._text_buffer: TextBuffer
         self.status: str = ""
+        self.status_color: colors.Color = colors.DEFAULT
 
         # view parameters
         # the part of the buffer currently visible on screen, represented by the number of the
@@ -151,7 +153,7 @@ class TextBufferView:
             status_line_number,
             0,
             f" {self.status} ",
-            curses.color_pair(7) ^ curses.A_REVERSE ^ curses.A_BOLD,
+            curses.color_pair(self.status_color) ^ curses.A_REVERSE ^ curses.A_BOLD,
         )
         self._window.addstr(
             status_line_number,
