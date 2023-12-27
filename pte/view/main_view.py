@@ -32,8 +32,8 @@ class MainView:
 
     def resize(self) -> None:
         curses.update_lines_cols()
+        self._window.erase()
 
         # pylint: disable=no-member
-        self.text_buffer_view._window.resize(curses.LINES - 1, curses.COLS)
-        self.text_buffer_view._status_line_index = curses.LINES - 2
-        self.command_line_view._window.mvwin(curses.LINES-1, 0)
+        self.text_buffer_view.set_size(curses.LINES - 1, curses.COLS)
+        self.command_line_view._window.mvwin(curses.LINES - 1, 0)
