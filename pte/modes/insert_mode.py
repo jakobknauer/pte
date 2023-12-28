@@ -10,6 +10,7 @@ from .transition import Transition, TransitionType
 ESCAPE = "\x1b"
 DEL = "KEY_DC"
 BACKSPACE = "KEY_BACKSPACE"
+RETURN = "\n"
 
 
 class InsertMode(Mode):
@@ -33,6 +34,8 @@ class InsertMode(Mode):
 
     def update(self) -> Transition:
         self._command_buffer.append(self._view.read())
+
+        text_buffer = self._text_buffer
         text_buffer_view = self._view.text_buffer_view
 
         match self._command_buffer:
@@ -40,9 +43,19 @@ class InsertMode(Mode):
                 self._command_buffer.clear()
                 text_buffer_view.move_left()
                 return (TransitionType.SWITCH, "NORMAL MODE")
+            case [c] if c == RETURN:
+                self._command_buffer.clear()
+                text_buffer.split_line(
+                    line_number=text_buffer_view.get_line(),
+                    column_number=text_buffer_view.get_column(),
+                )
+                text_buffer_view.set_cursor(
+                    line=text_buffer_view.get_line() + 1, column=0
+                )
+                return TransitionType.STAY
             case [str(c)] if len(c) == 1 and c in string.printable:
                 self._command_buffer.clear()
-                self._text_buffer.insert(
+                text_buffer.insert(
                     line_number=text_buffer_view.get_line(),
                     column_number=text_buffer_view.get_column(),
                     text=c,
@@ -51,14 +64,14 @@ class InsertMode(Mode):
                 return TransitionType.STAY
             case [c] if c == DEL:
                 self._command_buffer.clear()
-                self._text_buffer.delete_in_line(
+                text_buffer.delete_in_line(
                     line_number=text_buffer_view.get_line(),
                     column_number=text_buffer_view.get_column(),
                 )
                 return TransitionType.STAY
             case [c] if c == BACKSPACE:
                 self._command_buffer.clear()
-                self._text_buffer.delete_in_line(
+                text_buffer.delete_in_line(
                     line_number=text_buffer_view.get_line(),
                     column_number=text_buffer_view.get_column() - 1,
                 )
