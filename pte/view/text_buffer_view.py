@@ -25,6 +25,9 @@ class TextBufferView:
         self._line: int = 0
         self._column: int = 0
 
+        # behavior
+        self.allow_extra_column = False
+
     def set_text_buffer(self, text_buffer: TextBuffer) -> None:
         self._text_buffer = text_buffer
         self._buffer_window = (0, 0)
@@ -189,9 +192,10 @@ class TextBufferView:
         if column < 0:
             column = len(self._text_buffer.get_line(self._line)) - 1 - column
 
-        self._column = max(
-            0, min(column, len(self._text_buffer.get_line(self._line)) - 1)
+        max_column = (len(self._text_buffer.get_line(self._line)) - 1) + (
+            1 if self.allow_extra_column else 0
         )
+        self._column = max(0, min(column, max_column))
 
         self._consolidate_view_parameters()
 

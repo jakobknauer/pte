@@ -16,13 +16,15 @@ class NormalMode(Mode):
     def enter(self) -> None:
         self._view.text_buffer_view.status = self.name
         self._view.text_buffer_view.status_color = colors.CYAN
+        self._view.text_buffer_view.allow_extra_column = False
 
     def leave(self) -> None:
         self._view.text_buffer_view.status = f"LEFT {self.name}"
         self._command_buffer.clear()
 
     def draw(self) -> None:
-        self._view.draw(bottom_line_right="".join(self._command_buffer))
+        command = "".join(self._command_buffer)
+        self._view.draw(bottom_line_right=command)
 
     def update(self) -> Transition:
         self._command_buffer.append(self._view.read())
@@ -57,6 +59,11 @@ class NormalMode(Mode):
                 return TransitionType.STAY
             case ["i"]:
                 self._command_buffer.clear()
+                return (TransitionType.SWITCH, "INSERT MODE")
+            case ["a"]:
+                self._command_buffer.clear()
+                self._view.text_buffer_view.allow_extra_column = True
+                self._view.text_buffer_view.move_right()
                 return (TransitionType.SWITCH, "INSERT MODE")
             case [":"]:
                 self._command_buffer.clear()

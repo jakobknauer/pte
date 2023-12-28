@@ -22,6 +22,7 @@ class InsertMode(Mode):
     def enter(self) -> None:
         self._view.text_buffer_view.status = self.name
         self._view.text_buffer_view.status_color = colors.GREEN
+        self._view.text_buffer_view.allow_extra_column = True
 
     def leave(self) -> None:
         self._view.text_buffer_view.status = f"LEFT {self.name}"
