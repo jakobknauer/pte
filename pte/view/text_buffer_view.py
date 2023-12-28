@@ -34,14 +34,14 @@ class TextBufferView:
         self._line = 0
         self._column = 0
 
-        self._consolidate_view_parameters()
+        self.consolidate_view_parameters()
 
     def set_size(self, height: int, width: int) -> None:
         self._window.resize(height, width)
 
-        self._consolidate_view_parameters()
+        self.consolidate_view_parameters()
 
-    def _consolidate_view_parameters(self) -> None:
+    def consolidate_view_parameters(self) -> None:
         """Ensures the consistency of the view parameters with relevant environment parameters.
 
         The view parameters encompass the buffer window and the cursor position.
@@ -80,9 +80,13 @@ class TextBufferView:
             buffer_window_top -= overflow
             buffer_window_bottom -= overflow
 
-        available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
+        # shrink buffer window it goes beyond the end of the buffer
+        buffer_window_bottom = max(
+            buffer_window_bottom, self._text_buffer.number_of_lines() - 1
+        )
 
         # grow buffer window if possible, shrink buffer window if needed
+        available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
         if buffer_window_height <= available_screen_height:
             # move bottom as far down as possible
             buffer_window_bottom = min(
@@ -197,7 +201,7 @@ class TextBufferView:
         )
         self._column = max(0, min(column, max_column))
 
-        self._consolidate_view_parameters()
+        self.consolidate_view_parameters()
 
     def get_column(self) -> int:
         return self._column

@@ -49,11 +49,11 @@ class NormalMode(Mode):
                 text_buffer_view.move_right()
                 self._command_buffer.clear()
                 return TransitionType.STAY
-            case ["0"]:
+            case ["H"]:
                 text_buffer_view.set_column(0)
                 self._command_buffer.clear()
                 return TransitionType.STAY
-            case ["$"]:
+            case ["L"]:
                 text_buffer_view.set_column(-1)
                 self._command_buffer.clear()
                 return TransitionType.STAY

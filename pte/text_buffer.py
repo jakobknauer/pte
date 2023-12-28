@@ -35,6 +35,28 @@ class TextBuffer:
         self._lines[line_number] = line
         self._lines.insert(line_number + 1, new_line)
 
+    def join_lines(self, first_line_number: int) -> None:
+        if first_line_number < 0:
+            raise ValueError(
+                "Value of first_line_number must be greater than 0 "
+                "({first_line_number} provided)."
+            )
+        if first_line_number >= len(self._lines):
+            raise ValueError(
+                "Value of first_line_number must be lesser than {len(self._lines)} "
+                "({first_line_number} provided)."
+            )
+
+        if first_line_number + 1 >= len(self._lines):
+            return
+
+
+        first_line = self._lines[first_line_number]
+        second_line = self._lines[first_line_number + 1]
+
+        self._lines[first_line_number] = first_line + second_line
+        del self._lines[first_line_number + 1]
+
     @staticmethod
     def from_file(fp: TextIO) -> "TextBuffer":
         lines = fp.read().splitlines()

@@ -64,18 +64,35 @@ class InsertMode(Mode):
                 return TransitionType.STAY
             case [c] if c == DEL:
                 self._command_buffer.clear()
-                text_buffer.delete_in_line(
-                    line_number=text_buffer_view.get_line(),
-                    column_number=text_buffer_view.get_column(),
-                )
+
+                if text_buffer_view.get_column() < len(
+                    text_buffer.get_line(text_buffer_view.get_line())
+                ):
+                    text_buffer.delete_in_line(
+                        line_number=text_buffer_view.get_line(),
+                        column_number=text_buffer_view.get_column(),
+                    )
+                elif text_buffer_view.get_line() < text_buffer.number_of_lines() - 1:
+                    text_buffer.join_lines(text_buffer_view.get_line())
+                    text_buffer_view.consolidate_view_parameters()
+
                 return TransitionType.STAY
             case [c] if c == BACKSPACE:
                 self._command_buffer.clear()
-                text_buffer.delete_in_line(
-                    line_number=text_buffer_view.get_line(),
-                    column_number=text_buffer_view.get_column() - 1,
-                )
-                text_buffer_view.move_left(1)
+                if text_buffer_view.get_column() > 0:
+                    text_buffer.delete_in_line(
+                        line_number=text_buffer_view.get_line(),
+                        column_number=text_buffer_view.get_column() - 1,
+                    )
+                    text_buffer_view.move_left()
+                elif text_buffer_view.get_line() > 0:
+                    first_line_length = len(
+                        text_buffer.get_line(text_buffer_view.get_line() - 1)
+                    )
+                    text_buffer.join_lines(text_buffer_view.get_line() - 1)
+                    text_buffer_view.set_cursor(
+                        text_buffer_view.get_line() - 1, first_line_length
+                    )
                 return TransitionType.STAY
             case _:
                 self._command_buffer.clear()
