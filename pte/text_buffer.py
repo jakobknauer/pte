@@ -50,12 +50,17 @@ class TextBuffer:
         if first_line_number + 1 >= len(self._lines):
             return
 
-
         first_line = self._lines[first_line_number]
         second_line = self._lines[first_line_number + 1]
 
         self._lines[first_line_number] = first_line + second_line
         del self._lines[first_line_number + 1]
+
+    def insert_line(self, line_number: int, text: str = "") -> None:
+        self._lines.insert(line_number, text)
+
+    def delete_line(self, line_number: int) -> None:
+        del self._lines[line_number]
 
     @staticmethod
     def from_file(fp: TextIO) -> "TextBuffer":

@@ -186,15 +186,21 @@ class TextBufferView:
     def set_column(self, column) -> None:
         self.set_cursor(self._line, column)
 
+    def set_line(self, line) -> None:
+        self.set_cursor(line, self._column)
+
     def set_cursor(self, line, column) -> None:
         if self._text_buffer is None:
             return
+
+        if line < 0:
+            line = self._text_buffer.number_of_lines() + line
 
         line = max(0, min(self._text_buffer.number_of_lines() - 1, line))
         self._line = line
 
         if column < 0:
-            column = len(self._text_buffer.get_line(self._line)) - 1 - column
+            column = len(self._text_buffer.get_line(self._line)) + column
 
         max_column = (len(self._text_buffer.get_line(self._line)) - 1) + (
             1 if self.allow_extra_column else 0
