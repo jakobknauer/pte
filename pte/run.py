@@ -46,7 +46,7 @@ def main(stdscr: curses.window, args):
     if args.filename:
         log.info("Reading file...")
 
-        with open("example.txt") as fp:
+        with open(args.filename) as fp:
             text_buffer = TextBuffer.from_file(fp)
     else:
         log.info("Create empty buffer.")
