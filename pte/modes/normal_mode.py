@@ -149,6 +149,7 @@ class _CommandExecutor:
                 text_buffer.delete_line(line)
                 if line >= text_buffer.number_of_lines():
                     text_buffer_view.move_up()
+                text_buffer_view.set_column(0)
                 text_buffer_view.consolidate_view_parameters()
                 return TransitionType.STAY
             case ("i",):

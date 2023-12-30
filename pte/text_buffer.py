@@ -61,6 +61,8 @@ class TextBuffer:
 
     def delete_line(self, line_number: int) -> None:
         del self._lines[line_number]
+        if not self._lines:
+            self._lines.append("")
 
     @staticmethod
     def from_file(fp: TextIO) -> "TextBuffer":
