@@ -171,43 +171,9 @@ class TextBufferView:
         self._window.noutrefresh()
         curses.setsyx(self._line - self._buffer_window[0], self._column)
 
-    def move_up(self, lines=1) -> None:
-        self.set_cursor(self._line - lines, self._column)
-
-    def move_down(self, lines=1) -> None:
-        self.set_cursor(self._line + lines, self._column)
-
-    def move_left(self, columns=1) -> None:
-        self.set_cursor(self._line, max(0, self._column - columns))
-
-    def move_right(self, columns=1) -> None:
-        self.set_cursor(self._line, self._column + columns)
-
-    def set_column(self, column) -> None:
-        self.set_cursor(self._line, column)
-
-    def set_line(self, line) -> None:
-        self.set_cursor(line, self._column)
-
     def set_cursor(self, line, column) -> None:
-        if self._text_buffer is None:
-            return
-
-        if line < 0:
-            line = self._text_buffer.number_of_lines() + line
-
-        line = max(0, min(self._text_buffer.number_of_lines() - 1, line))
         self._line = line
-
-        if column < 0:
-            column = len(self._text_buffer.get_line(self._line)) + column
-
-        max_column = (len(self._text_buffer.get_line(self._line)) - 1) + (
-            1 if self.allow_extra_column else 0
-        )
-        self._column = max(0, min(column, max_column))
-
-        self.consolidate_view_parameters()
+        self._column = column
 
     def get_column(self) -> int:
         return self._column

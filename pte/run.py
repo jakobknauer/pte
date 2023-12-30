@@ -6,6 +6,7 @@ import logging
 
 from pte import modes
 from pte.text_buffer import TextBuffer
+from pte.cursor import Cursor
 from pte.view import MainView
 
 
@@ -52,9 +53,11 @@ def main(stdscr: curses.window, args):
         log.info("Create empty buffer.")
         text_buffer = TextBuffer([""])
 
+    cursor = Cursor(text_buffer)
+
     log.info("Setting up modes...")
 
-    normal = modes.NormalMode(text_buffer, view)
+    normal = modes.NormalMode(text_buffer, cursor, view)
     insert = modes.InsertMode(text_buffer, view)
     command = modes.CommandMode(text_buffer, view)
 

@@ -1,18 +1,20 @@
 from pte.text_buffer import TextBuffer
-from pte.view import MainView, colors, TextBufferView
+from pte.cursor import Cursor
+from pte.view import MainView, colors
 
 from .mode import Mode
 from .transition import Transition, TransitionType
 
 
 class NormalMode(Mode):
-    def __init__(self, text_buffer: TextBuffer, view: MainView) -> None:
+    def __init__(self, text_buffer: TextBuffer, cursor: Cursor, view: MainView) -> None:
         super().__init__(name="NORMAL MODE")
         self._text_buffer = text_buffer
+        self._cursor = cursor
         self._view = view
         self._view.text_buffer_view.set_text_buffer(self._text_buffer)
         self._command_buffer = _CommandBuffer()
-        self._command_executor = _CommandExecutor(text_buffer, view.text_buffer_view)
+        self._command_executor = _CommandExecutor(text_buffer, cursor)
 
     def enter(self) -> None:
         self._view.text_buffer_view.status = self.name
@@ -24,8 +26,9 @@ class NormalMode(Mode):
         self._command_buffer.clear()
 
     def draw(self) -> None:
-        command = str(self._command_buffer)
-        self._view.draw(bottom_line_right=command)
+        self._view.text_buffer_view.set_cursor(self._cursor.line, self._cursor.column)
+        self._view.text_buffer_view.consolidate_view_parameters()
+        self._view.draw(bottom_line_right=str(self._command_buffer))
 
     def update(self) -> Transition:
         self._command_buffer.append(self._view.read())
@@ -95,86 +98,87 @@ class _CommandBuffer:
 
 
 class _CommandExecutor:
-    def __init__(self, text_buffer: TextBuffer, text_buffer_view: TextBufferView):
+    def __init__(self, text_buffer: TextBuffer, cursor: Cursor):
         self._text_buffer = text_buffer
-        self._text_buffer_view = text_buffer_view
+        self._cursor = cursor
 
     def execute(self, command: list[str]) -> Transition:
-        text_buffer_view = self._text_buffer_view
+        cursor = self._cursor
         text_buffer = self._text_buffer
 
         match tuple(command):
             case ("h",):
-                text_buffer_view.move_left()
+                cursor.move_left()
                 return TransitionType.STAY
             case ("j",):
-                text_buffer_view.move_down()
+                cursor.move_down()
                 return TransitionType.STAY
             case ("k",):
-                text_buffer_view.move_up()
+                cursor.move_up()
                 return TransitionType.STAY
             case ("l",):
-                text_buffer_view.move_right()
+                cursor.move_right()
                 return TransitionType.STAY
             case ("H",):
-                text_buffer_view.set_column(0)
+                cursor.column = 0
                 return TransitionType.STAY
             case ("J",):
-                text_buffer_view.set_line(-1)
+                cursor.line = -1
                 return TransitionType.STAY
             case ("K",):
-                text_buffer_view.set_line(0)
+                cursor.line = 0
                 return TransitionType.STAY
             case ("L",):
-                text_buffer_view.set_column(-1)
+                cursor.column = -1
                 return TransitionType.STAY
             case ("x",):
-                line = text_buffer_view.get_line()
-                column = text_buffer_view.get_column()
-                text_buffer.delete_in_line(line_number=line, column_number=column)
+                line = cursor.line
+                column = cursor.column
+                text_buffer.delete_in_line(
+                    line_number=cursor.line, column_number=column
+                )
                 if column >= len(text_buffer.get_line(line)):
-                    text_buffer_view.move_left()
+                    cursor.move_left()
                 return TransitionType.STAY
             case ("X",):
-                line = text_buffer_view.get_line()
-                column = text_buffer_view.get_column()
+                line = cursor.line
+                column = cursor.column
                 if column > 0:
                     text_buffer.delete_in_line(
                         line_number=line, column_number=column - 1
                     )
-                    text_buffer_view.move_left()
+                    cursor.move_left()
                 return TransitionType.STAY
             case ("d", "d"):
-                line = text_buffer_view.get_line()
+                line = cursor.line
                 text_buffer.delete_line(line)
                 if line >= text_buffer.number_of_lines():
-                    text_buffer_view.move_up()
-                text_buffer_view.set_column(0)
-                text_buffer_view.consolidate_view_parameters()
+                    cursor.move_up()
+                cursor.column = 0
                 return TransitionType.STAY
             case ("i",):
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("a",):
-                text_buffer_view.allow_extra_column = True
-                text_buffer_view.move_right()
+                cursor.allow_extra_column = True
+                cursor.move_right()
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("I",):
-                text_buffer_view.set_column(0)
+                cursor.column = 0
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("A",):
-                text_buffer_view.allow_extra_column = True
-                text_buffer_view.set_column(-1)
-                text_buffer_view.move_right()
+                cursor.allow_extra_column = True
+                cursor.column = -1
+                cursor.move_right()
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("o",):
-                line_number = text_buffer_view.get_line() + 1
+                line_number = cursor.line + 1
                 text_buffer.insert_line(line_number)
-                text_buffer_view.set_cursor(line=line_number, column=0)
+                cursor.set(line=line_number, column=0)
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("O",):
-                line_number = text_buffer_view.get_line()
+                line_number = cursor.line
                 text_buffer.insert_line(line_number)
-                text_buffer_view.set_cursor(line=line_number, column=0)
+                cursor.set(line=line_number, column=0)
                 return (TransitionType.SWITCH, "INSERT MODE")
             case (":",):
                 return (TransitionType.SWITCH, "COMMAND MODE")
