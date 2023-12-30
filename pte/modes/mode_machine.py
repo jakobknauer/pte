@@ -55,13 +55,17 @@ class ModeMachine:
                     self.error(
                         f"Transition to unknown mode with name '{name}' requested."
                     )
-                    return
+                    raise NotImplementedError(
+                        f"Transition to unknown mode with name '{name}' requested."
+                    )
                 case TransitionType.QUIT | None:
                     self.debug(f"Quit from final mode {self._mode}")
                     break
                 case _:
                     self.error(f"Invalid transition '{transition}' requested.")
-                    return
+                    raise NotImplementedError(
+                        f"Invalid transition '{transition}' requested."
+                    )
 
         self.info(f"Final mode: {self._mode}.")
 
