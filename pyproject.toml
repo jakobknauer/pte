@@ -1,6 +1,6 @@
 [project]
 name = "pte"
-version = "0.1.1"
+version = "0.1.2"
 description = "A modal command-line text editor written in Python"
 authors = [{name = "Jakob Knauer"}]
 
