@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import curses
 import logging
 
@@ -23,7 +24,15 @@ def set_up_logging():
     logger.addHandler(fh)
 
 
-def main(stdscr: curses.window):
+def get_args():
+    parser = argparse.ArgumentParser(
+        prog="pte", description="A modal command-line text editor written in Python"
+    )
+    parser.add_argument("filename", nargs="?")
+    return parser.parse_args()
+
+
+def main(stdscr: curses.window, args):
     log.info("Starting up...")
 
     log.info("Setting up view...")
@@ -34,10 +43,14 @@ def main(stdscr: curses.window):
         curses.init_pair(i + 1, i, -1)
     view = MainView(stdscr)
 
-    log.info("Reading file...")
+    if args.filename:
+        log.info("Reading file...")
 
-    with open("example.txt") as fp:
-        text_buffer = TextBuffer.from_file(fp)
+        with open("example.txt") as fp:
+            text_buffer = TextBuffer.from_file(fp)
+    else:
+        log.info("Create empty buffer.")
+        text_buffer = TextBuffer([""])
 
     log.info("Setting up modes...")
 
@@ -56,4 +69,5 @@ def main(stdscr: curses.window):
 
 if __name__ == "__main__":
     set_up_logging()
-    curses.wrapper(main)
+    args = get_args()
+    curses.wrapper(main, args)
