@@ -1,3 +1,5 @@
+import string
+
 from pte.text_buffer import TextBuffer
 from pte.view import MainView, colors
 
@@ -7,6 +9,7 @@ from .transition import Transition, TransitionType
 
 ESCAPE = "\x1b"
 ENTER = ["KEY_ENTER", "\n", "\r"]
+BACKSPACE = "KEY_BACKSPACE"
 
 
 class CommandMode(Mode):
@@ -15,6 +18,7 @@ class CommandMode(Mode):
         self._text_buffer = text_buffer
         self._view = view
         self._command_buffer: list[str] = []
+        self._command_executor = _CommandExecutor(text_buffer)
 
     def enter(self) -> None:
         self._view.text_buffer_view.status = self.name
@@ -32,14 +36,43 @@ class CommandMode(Mode):
         self._view.draw()
 
     def update(self) -> Transition:
-        self._command_buffer.append(self._view.read())
-
-        match self._command_buffer:
-            case [*_, c] if c == ESCAPE:
-                self._command_buffer.clear()
-                return (TransitionType.SWITCH, "NORMAL MODE")
-            case [*_, c] if c in ENTER:
-                self._command_buffer.clear()
-                return (TransitionType.SWITCH, "NORMAL MODE")
-            case _:
+        match self._view.read():
+            case "":
                 return TransitionType.STAY
+            case c if c == ESCAPE:
+                self._command_buffer.clear()
+                return (TransitionType.SWITCH, "NORMAL MODE")
+            case c if c in ENTER:
+                transition = self._command_executor.execute(self._command_buffer)
+                self._command_buffer.clear()
+                return transition
+            case c if c == BACKSPACE:
+                if self._command_buffer:
+                    del self._command_buffer[-1]
+                    return TransitionType.STAY
+                else:
+                    return (TransitionType.SWITCH, "NORMAL MODE")
+            case c if c in string.printable:
+                self._command_buffer.append(c)
+                return TransitionType.STAY
+            case _:
+                self._command_buffer.clear()
+                return (TransitionType.SWITCH, "NORMAL MODE")
+
+
+class _CommandExecutor:
+    def __init__(self, text_buffer: TextBuffer) -> None:
+        self._text_buffer = text_buffer
+
+    def execute(self, command: list[str]) -> Transition:
+        parts = "".join(command).split()
+
+        match parts:
+            case ["save", str(path)]:
+                with open(path, "w") as fp:
+                    self._text_buffer.to_file(fp)
+                return (TransitionType.SWITCH, "NORMAL MODE")
+            case ["quit"]:
+                return TransitionType.QUIT
+            case _:
+                return (TransitionType.SWITCH, "NORMAL MODE")

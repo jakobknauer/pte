@@ -66,3 +66,7 @@ class TextBuffer:
     def from_file(fp: TextIO) -> "TextBuffer":
         lines = fp.read().splitlines()
         return TextBuffer(lines)
+
+    def to_file(self, fp: TextIO) -> None:
+        for line in self._lines:
+            fp.write(f"{line}\n")
