@@ -58,7 +58,7 @@ def main(stdscr: curses.window, args):
     log.info("Setting up modes...")
 
     normal = modes.NormalMode(text_buffer, cursor, view)
-    insert = modes.InsertMode(text_buffer, view)
+    insert = modes.InsertMode(text_buffer, cursor, view)
     command = modes.CommandMode(text_buffer, view)
 
     log.info("Start mode machine.")

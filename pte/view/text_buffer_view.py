@@ -25,9 +25,6 @@ class TextBufferView:
         self._line: int = 0
         self._column: int = 0
 
-        # behavior
-        self.allow_extra_column = False
-
     def set_text_buffer(self, text_buffer: TextBuffer) -> None:
         self._text_buffer = text_buffer
         self._buffer_window = (0, 0)
