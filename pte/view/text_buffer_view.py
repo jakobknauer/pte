@@ -17,10 +17,10 @@ class TextBufferView:
         self.status: str = ""
         self.status_color: colors.Color = colors.DEFAULT
 
-        # view parameters
         # the part of the buffer currently visible on screen, represented by the number of the
         # first visible line, and the the number of the first non-visible line below that.
         self._buffer_window: tuple[int, int]
+
         # cursor position
         self._line: int = 0
         self._column: int = 0
@@ -41,8 +41,8 @@ class TextBufferView:
     def consolidate_view_parameters(self) -> None:
         """Ensures the consistency of the view parameters with relevant environment parameters.
 
-        The view parameters encompass the buffer window and the cursor position.
-        The relevant environment parameters encompass the text buffer and screen size.
+        The view parameters encompasses the buffer window.
+        The relevant environment parameters encompass the text buffer, cursor, and screen size.
 
         Should be called whenever one of the following has changed:
             - _window, or its size
@@ -58,8 +58,6 @@ class TextBufferView:
 
         If the screen height decreased, shrink the buffer window from the bottom upwards towards
         the cursor as far as possible; then, if needed, from the top downwards towards the cursor.
-
-        TODO: consider text buffer having shrunk before resizing.
         """
         if not hasattr(self, "_text_buffer"):
             return
@@ -168,15 +166,9 @@ class TextBufferView:
         self._window.noutrefresh()
         curses.setsyx(self._line - self._buffer_window[0], self._column)
 
-    def set_cursor(self, line, column) -> None:
+    def set_cursor(self, line: int, column: int) -> None:
         self._line = line
         self._column = column
-
-    def get_column(self) -> int:
-        return self._column
-
-    def get_line(self) -> int:
-        return self._line
 
     def get_window_height(self) -> int:
         return self._window.getmaxyx()[0]
