@@ -68,7 +68,7 @@ class InsertMode(Mode):
                     line_number=cursor.line,
                     column_number=cursor.column,
                 )
-                cursor.set(line=cursor.line, column=0)
+                cursor.set(line=cursor.line+1, column=0)
                 return TransitionType.STAY
             case [str(c)] if len(c) == 1 and c in string.printable:
                 self._command_buffer.clear()
