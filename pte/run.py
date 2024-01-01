@@ -7,8 +7,7 @@ import os
 from pathlib import Path
 
 from pte import modes
-from pte.text_buffer import TextBuffer
-from pte.cursor import Cursor
+from pte.text_buffer_manager import TextBufferManager
 from pte.view import MainView
 
 
@@ -51,22 +50,20 @@ def main(stdscr: curses.window, args):
         curses.init_pair(i + 1, i, -1)
     view = MainView(stdscr)
 
-    if args.filename:
-        log.info("Reading file...")
+    log.info("Setting up text buffer manager.")
 
-        with open(args.filename) as fp:
-            text_buffer = TextBuffer.from_file(fp)
-    else:
-        log.info("Create empty buffer.")
-        text_buffer = TextBuffer([""])
-
-    cursor = Cursor(text_buffer)
+    text_buffer_manager = TextBufferManager()
 
     log.info("Setting up modes...")
 
-    normal = modes.NormalMode(text_buffer, cursor, view)
-    insert = modes.InsertMode(text_buffer, cursor, view)
-    command = modes.CommandMode(text_buffer, view)
+    normal = modes.NormalMode(text_buffer_manager, view)
+    insert = modes.InsertMode(text_buffer_manager, view)
+    command = modes.CommandMode(text_buffer_manager, view)
+
+    log.info("Initializing buffers...")
+
+    if args.filename:
+        text_buffer_manager.load_file(Path(args.filename))
 
     log.info("Start mode machine.")
 

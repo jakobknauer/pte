@@ -1,6 +1,7 @@
 import string
+from pathlib import Path
 
-from pte.text_buffer import TextBuffer
+from pte.text_buffer_manager import TextBufferManager
 from pte.view import MainView, colors
 
 from .mode import Mode
@@ -13,12 +14,12 @@ BACKSPACE = "KEY_BACKSPACE"
 
 
 class CommandMode(Mode):
-    def __init__(self, text_buffer: TextBuffer, view: MainView):
+    def __init__(self, text_buffer_manager: TextBufferManager, view: MainView):
         super().__init__(name="COMMAND MODE")
-        self._text_buffer = text_buffer
+        self._text_buffer_manager = text_buffer_manager
         self._view = view
         self._command_buffer: list[str] = []
-        self._command_executor = _CommandExecutor(text_buffer)
+        self._command_executor: _CommandExecutor = _CommandExecutor(text_buffer_manager)
 
     def enter(self) -> None:
         self._view.text_buffer_view.status = self.name
@@ -61,18 +62,27 @@ class CommandMode(Mode):
 
 
 class _CommandExecutor:
-    def __init__(self, text_buffer: TextBuffer) -> None:
-        self._text_buffer = text_buffer
+    def __init__(self, text_buffer_manager: TextBufferManager) -> None:
+        self._text_buffer_manager = text_buffer_manager
 
     def execute(self, command: list[str]) -> Transition:
+        active_buffer = self._text_buffer_manager.active_buffer
         parts = "".join(command).split()
 
         match parts:
-            case ["save", str(path)]:
-                with open(path, "w") as fp:
-                    self._text_buffer.to_file(fp)
+            case ["save", str(path)] if active_buffer:
+                self._text_buffer_manager.save_buffer(Path(path))
+                return (TransitionType.SWITCH, "NORMAL MODE")
+            case ["save"] if active_buffer:
+                self._text_buffer_manager.save_buffer()
+                return (TransitionType.SWITCH, "NORMAL MODE")
+            case ["load", str(path)]:
+                self._text_buffer_manager.load_file(Path(path))
                 return (TransitionType.SWITCH, "NORMAL MODE")
             case ["quit"]:
                 return TransitionType.QUIT
+            case ["empty"]:
+                self._text_buffer_manager.load_empty_buffer()
+                return (TransitionType.SWITCH, "NORMAL MODE")
             case _:
                 return (TransitionType.SWITCH, "NORMAL MODE")

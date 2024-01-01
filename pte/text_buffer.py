@@ -1,9 +1,10 @@
-from typing import TextIO
+from pathlib import Path
 
 
 class TextBuffer:
-    def __init__(self, lines: list[str]):
+    def __init__(self, lines: list[str], path: Path | None = None):
         self._lines = lines
+        self.path = path
 
     def number_of_lines(self) -> int:
         return len(self._lines)
@@ -63,12 +64,3 @@ class TextBuffer:
         del self._lines[line_number]
         if not self._lines:
             self._lines.append("")
-
-    @staticmethod
-    def from_file(fp: TextIO) -> "TextBuffer":
-        lines = fp.read().splitlines()
-        return TextBuffer(lines)
-
-    def to_file(self, fp: TextIO) -> None:
-        for line in self._lines:
-            fp.write(f"{line}\n")

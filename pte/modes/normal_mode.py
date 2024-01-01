@@ -1,4 +1,5 @@
 from pte.text_buffer import TextBuffer
+from pte.text_buffer_manager import TextBufferManager
 from pte.cursor import Cursor
 from pte.view import MainView, colors
 
@@ -7,27 +8,37 @@ from .transition import Transition, TransitionType
 
 
 class NormalMode(Mode):
-    def __init__(self, text_buffer: TextBuffer, cursor: Cursor, view: MainView) -> None:
+    def __init__(self, text_buffer_manager: TextBufferManager, view: MainView) -> None:
         super().__init__(name="NORMAL MODE")
-        self._text_buffer = text_buffer
-        self._cursor = cursor
+        self._text_buffer_manager = text_buffer_manager
         self._view = view
-        self._view.text_buffer_view.set_text_buffer(self._text_buffer)
         self._command_buffer = _CommandBuffer()
-        self._command_executor = _CommandExecutor(text_buffer, cursor)
+        self._command_executor: _CommandExecutor = _CommandExecutor(text_buffer_manager)
+
+        self._text_buffer: TextBuffer | None = None
+        self._cursor: Cursor | None = None
 
     def enter(self) -> None:
+        if self._text_buffer_manager.active_buffer:
+            self._text_buffer = self._text_buffer_manager.active_buffer[0]
+            self._cursor = self._text_buffer_manager.active_buffer[1]
+
+            self._cursor.allow_extra_column = False
+            self._view.text_buffer_view.set_text_buffer(self._text_buffer)
+
         self._view.text_buffer_view.status = self.name
         self._view.text_buffer_view.status_color = colors.CYAN
-        self._cursor.allow_extra_column = False
 
     def leave(self) -> None:
         self._view.text_buffer_view.status = f"LEFT {self.name}"
         self._command_buffer.clear()
 
     def draw(self) -> None:
-        self._view.text_buffer_view.set_cursor(self._cursor.line, self._cursor.column)
-        self._view.text_buffer_view.consolidate_view_parameters()
+        if self._text_buffer and self._cursor:
+            self._view.text_buffer_view.set_cursor(
+                self._cursor.line, self._cursor.column
+            )
+            self._view.text_buffer_view.consolidate_view_parameters()
         self._view.draw(bottom_line_right=str(self._command_buffer))
 
     def update(self) -> Transition:
@@ -98,40 +109,41 @@ class _CommandBuffer:
 
 
 class _CommandExecutor:
-    def __init__(self, text_buffer: TextBuffer, cursor: Cursor):
-        self._text_buffer = text_buffer
-        self._cursor = cursor
+    def __init__(self, text_buffer_manager: TextBufferManager):
+        self._text_buffer_manager = text_buffer_manager
 
     def execute(self, command: list[str]) -> Transition:
-        cursor = self._cursor
-        text_buffer = self._text_buffer
+        active_buffer = self._text_buffer_manager.active_buffer
+        if active_buffer:
+            text_buffer = active_buffer[0]
+            cursor = active_buffer[1]
 
         match tuple(command):
-            case ("h",):
+            case ("h",) if active_buffer:
                 cursor.move_left()
                 return TransitionType.STAY
-            case ("j",):
+            case ("j",) if active_buffer:
                 cursor.move_down()
                 return TransitionType.STAY
-            case ("k",):
+            case ("k",) if active_buffer:
                 cursor.move_up()
                 return TransitionType.STAY
-            case ("l",):
+            case ("l",) if active_buffer:
                 cursor.move_right()
                 return TransitionType.STAY
-            case ("H",):
+            case ("H",) if active_buffer:
                 cursor.column = 0
                 return TransitionType.STAY
-            case ("J",):
+            case ("J",) if active_buffer:
                 cursor.line = -1
                 return TransitionType.STAY
-            case ("K",):
+            case ("K",) if active_buffer:
                 cursor.line = 0
                 return TransitionType.STAY
-            case ("L",):
+            case ("L",) if active_buffer:
                 cursor.column = -1
                 return TransitionType.STAY
-            case ("x",):
+            case ("x",) if active_buffer:
                 line = cursor.line
                 column = cursor.column
                 text_buffer.delete_in_line(
@@ -140,7 +152,7 @@ class _CommandExecutor:
                 if column >= len(text_buffer.get_line(line)):
                     cursor.move_left()
                 return TransitionType.STAY
-            case ("X",):
+            case ("X",) if active_buffer:
                 line = cursor.line
                 column = cursor.column
                 if column > 0:
@@ -149,33 +161,33 @@ class _CommandExecutor:
                     )
                     cursor.move_left()
                 return TransitionType.STAY
-            case ("d", "d"):
+            case ("d", "d") if active_buffer:
                 line = cursor.line
                 text_buffer.delete_line(line)
                 if line >= text_buffer.number_of_lines():
                     cursor.move_up()
                 cursor.column = 0
                 return TransitionType.STAY
-            case ("i",):
+            case ("i",) if active_buffer:
                 return (TransitionType.SWITCH, "INSERT MODE")
-            case ("a",):
+            case ("a",) if active_buffer:
                 cursor.allow_extra_column = True
                 cursor.move_right()
                 return (TransitionType.SWITCH, "INSERT MODE")
-            case ("I",):
+            case ("I",) if active_buffer:
                 cursor.column = 0
                 return (TransitionType.SWITCH, "INSERT MODE")
-            case ("A",):
+            case ("A",) if active_buffer:
                 cursor.allow_extra_column = True
                 cursor.column = -1
                 cursor.move_right()
                 return (TransitionType.SWITCH, "INSERT MODE")
-            case ("o",):
+            case ("o",) if active_buffer:
                 line_number = cursor.line + 1
                 text_buffer.insert_line(line_number)
                 cursor.set(line=line_number, column=0)
                 return (TransitionType.SWITCH, "INSERT MODE")
-            case ("O",):
+            case ("O",) if active_buffer:
                 line_number = cursor.line
                 text_buffer.insert_line(line_number)
                 cursor.set(line=line_number, column=0)
@@ -183,8 +195,12 @@ class _CommandExecutor:
             case (":",):
                 return (TransitionType.SWITCH, "COMMAND MODE")
             case ("Z", "Z"):
+                if active_buffer:
+                    self._text_buffer_manager.save_buffer()
                 return TransitionType.QUIT
             case ("Z", "Q"):
                 return TransitionType.QUIT
+            case cmd if cmd in _COMMANDS:
+                return TransitionType.STAY
             case _:
                 raise ValueError(f"Unknown command: {command}.")

@@ -1,6 +1,7 @@
 import string
 
 from pte.text_buffer import TextBuffer
+from pte.text_buffer_manager import TextBufferManager
 from pte.cursor import Cursor
 from pte.view import MainView, colors
 
@@ -15,28 +16,42 @@ RETURN = "\n"
 
 
 class InsertMode(Mode):
-    def __init__(self, text_buffer: TextBuffer, cursor: Cursor, view: MainView):
+    def __init__(self, text_buffer_manager: TextBufferManager, view: MainView):
         super().__init__(name="INSERT MODE")
-        self._text_buffer = text_buffer
-        self._cursor = cursor
+        self._text_buffer_manager = text_buffer_manager
         self._view = view
         self._command_buffer: list[str] = []
 
+        self._text_buffer: TextBuffer | None = None
+        self._cursor: Cursor | None = None
+
     def enter(self) -> None:
+        if not self._text_buffer_manager.active_buffer:
+            raise NotImplementedError("Cannot run insert mode without active buffer.")
+
+        self._text_buffer = self._text_buffer_manager.active_buffer[0]
+        self._cursor = self._text_buffer_manager.active_buffer[1]
+        self._cursor.allow_extra_column = True
+
         self._view.text_buffer_view.status = self.name
         self._view.text_buffer_view.status_color = colors.GREEN
-        self._cursor.allow_extra_column = True
 
     def leave(self) -> None:
         self._view.text_buffer_view.status = f"LEFT {self.name}"
         self._command_buffer.clear()
 
     def draw(self) -> None:
-        self._view.text_buffer_view.set_cursor(self._cursor.line, self._cursor.column)
+        if self._cursor:
+            self._view.text_buffer_view.set_cursor(
+                self._cursor.line, self._cursor.column
+            )
         self._view.text_buffer_view.consolidate_view_parameters()
         self._view.draw()
 
     def update(self) -> Transition:
+        if not self._cursor or not self._text_buffer:
+            raise NotImplementedError("Cannot run insert mode without active buffer.")
+
         self._command_buffer.append(self._view.read())
 
         text_buffer = self._text_buffer

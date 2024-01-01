@@ -13,7 +13,7 @@ class TextBufferView:
         self._window = window
 
         # view content
-        self._text_buffer: TextBuffer
+        self._text_buffer: TextBuffer | None = None
         self.status: str = ""
         self.status_color: colors.Color = colors.DEFAULT
 
@@ -138,17 +138,7 @@ class TextBufferView:
         if self._window is None:
             return
 
-        if self._text_buffer is None:
-            return
-
         self._window.erase()
-
-        first, last = self._buffer_window
-        for screen_line_number, buffer_line_number in zip(
-            range(last - first), range(first, last)
-        ):
-            line = self._text_buffer.get_line(buffer_line_number)
-            self._window.addstr(screen_line_number, 0, line)
 
         status_line_number = self.get_window_height() - STATUS_LINE_HEIGHT
         self._window.addstr(
@@ -162,9 +152,19 @@ class TextBufferView:
             self.get_screen_width() - 1 - len(bottom_line_right),
             bottom_line_right,
         )
-
         self._window.noutrefresh()
-        curses.setsyx(self._line - self._buffer_window[0], self._column)
+
+        if self._text_buffer:
+            first, last = self._buffer_window
+            for screen_line_number, buffer_line_number in zip(
+                range(last - first), range(first, last)
+            ):
+                line = self._text_buffer.get_line(buffer_line_number)
+                self._window.addstr(screen_line_number, 0, line)
+
+            self._window.noutrefresh()
+            curses.setsyx(self._line - self._buffer_window[0], self._column)
+
 
     def set_cursor(self, line: int, column: int) -> None:
         self._line = line
