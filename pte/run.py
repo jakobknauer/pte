@@ -14,7 +14,7 @@ from pte.view import MainView
 log = logging.getLogger(__name__)
 
 
-def set_up_logging():
+def set_up_logging() -> None:
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
@@ -31,7 +31,7 @@ def set_up_logging():
     logger.addHandler(fh)
 
 
-def get_args():
+def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="pte", description="A modal command-line text editor written in Python"
     )
@@ -39,10 +39,10 @@ def get_args():
     return parser.parse_args()
 
 
-def main(stdscr: curses.window, args):
+def run(stdscr: curses.window, args: argparse.Namespace) -> None:
     log.info("Starting up...")
 
-    log.info("Setting up view...")
+    log.info("Setting up view.")
 
     curses.set_escdelay(1)
     curses.use_default_colors()
@@ -54,27 +54,31 @@ def main(stdscr: curses.window, args):
 
     text_buffer_manager = TextBufferManager()
 
-    log.info("Setting up modes...")
+    log.info("Setting up modes.")
 
     normal = modes.NormalMode(text_buffer_manager, view)
     insert = modes.InsertMode(text_buffer_manager, view)
     command = modes.CommandMode(text_buffer_manager, view)
 
-    log.info("Initializing buffers...")
+    log.info("Initializing buffers.")
 
     if args.filename:
         text_buffer_manager.load_file(Path(args.filename))
 
-    log.info("Start mode machine.")
+    log.info("Run mode machine.")
 
     mode_machine = modes.ModeMachine(normal, insert, command)
     mode_machine.switch_mode(normal)
     mode_machine.run()
 
-    log.info("Leaving...")
+    log.info("Exit.")
+
+
+def main() -> None:
+    set_up_logging()
+    args = get_args()
+    curses.wrapper(run, args)
 
 
 if __name__ == "__main__":
-    set_up_logging()
-    args = get_args()
-    curses.wrapper(main, args)
+    main()
