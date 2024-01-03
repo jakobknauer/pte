@@ -24,7 +24,6 @@ class NormalMode(Mode):
             self._cursor = self._text_buffer_manager.active_buffer[1]
 
             self._cursor.allow_extra_column = False
-            self._view.text_buffer_view.set_text_buffer(self._text_buffer)
 
         self._view.text_buffer_view.status = self.name
         self._view.text_buffer_view.status_color = colors.CYAN
@@ -35,6 +34,7 @@ class NormalMode(Mode):
 
     def draw(self) -> None:
         if self._text_buffer and self._cursor:
+            self._view.text_buffer_view.set_text_buffer(list(self._text_buffer))
             self._view.text_buffer_view.set_cursor(
                 self._cursor.line, self._cursor.column
             )

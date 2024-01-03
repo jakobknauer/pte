@@ -33,6 +33,7 @@ class InsertMode(Mode):
         self._cursor = self._text_buffer_manager.active_buffer[1]
         self._cursor.allow_extra_column = True
 
+        self._view.text_buffer_view.set_text_buffer(list(self._text_buffer))
         self._view.text_buffer_view.status = self.name
         self._view.text_buffer_view.status_color = colors.GREEN
 
@@ -41,10 +42,11 @@ class InsertMode(Mode):
         self._command_buffer.clear()
 
     def draw(self) -> None:
-        if self._cursor:
-            self._view.text_buffer_view.set_cursor(
-                self._cursor.line, self._cursor.column
-            )
+        if not self._cursor or not self._text_buffer:
+            raise NotImplementedError("Cannot run insert mode without active buffer.")
+
+        self._view.text_buffer_view.set_text_buffer(list(self._text_buffer))
+        self._view.text_buffer_view.set_cursor(self._cursor.line, self._cursor.column)
         self._view.text_buffer_view.consolidate_view_parameters()
         self._view.draw()
 
@@ -68,7 +70,7 @@ class InsertMode(Mode):
                     line_number=cursor.line,
                     column_number=cursor.column,
                 )
-                cursor.set(line=cursor.line+1, column=0)
+                cursor.set(line=cursor.line + 1, column=0)
                 return TransitionType.STAY
             case [str(c)] if len(c) == 1 and c in string.printable:
                 self._command_buffer.clear()

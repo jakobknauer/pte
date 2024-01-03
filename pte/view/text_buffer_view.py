@@ -1,6 +1,5 @@
 import curses
 
-from pte.text_buffer import TextBuffer
 from . import colors
 
 
@@ -13,7 +12,7 @@ class TextBufferView:
         self._window = window
 
         # view content
-        self._text_buffer: TextBuffer | None = None
+        self._text_buffer: list[str] | None = None
         self.status: str = ""
         self.status_color: colors.Color = colors.DEFAULT
 
@@ -25,8 +24,8 @@ class TextBufferView:
         self._line: int = 0
         self._column: int = 0
 
-    def set_text_buffer(self, text_buffer: TextBuffer) -> None:
-        self._text_buffer = text_buffer
+    def set_text_buffer(self, lines: list[str]) -> None:
+        self._text_buffer = lines
         self._buffer_window = (0, 0)
         self._line = 0
         self._column = 0
@@ -59,7 +58,7 @@ class TextBufferView:
         If the screen height decreased, shrink the buffer window from the bottom upwards towards
         the cursor as far as possible; then, if needed, from the top downwards towards the cursor.
         """
-        if not hasattr(self, "_text_buffer"):
+        if not self._text_buffer:
             return
 
         buffer_window_top, buffer_window_bottom = self._buffer_window
@@ -76,17 +75,14 @@ class TextBufferView:
             buffer_window_bottom -= overflow
 
         # shrink buffer window it goes beyond the end of the buffer
-        buffer_window_bottom = max(
-            buffer_window_bottom, self._text_buffer.number_of_lines() - 1
-        )
+        buffer_window_bottom = max(buffer_window_bottom, len(self._text_buffer))
 
         # grow buffer window if possible, shrink buffer window if needed
         available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
         if buffer_window_height <= available_screen_height:
             # move bottom as far down as possible
             buffer_window_bottom = min(
-                self._text_buffer.number_of_lines(),
-                buffer_window_top + available_screen_height,
+                len(self._text_buffer), buffer_window_top + available_screen_height
             )
             buffer_window_height = buffer_window_bottom - buffer_window_top
             assert 0 <= buffer_window_height <= available_screen_height
@@ -119,7 +115,9 @@ class TextBufferView:
         self._buffer_window = (buffer_window_top, buffer_window_bottom)
         self._assert_view_parameters_consistency()
 
-    def _assert_view_parameters_consistency(self):
+    def _assert_view_parameters_consistency(self) -> None:
+        assert self._text_buffer is not None
+
         buffer_window_top, buffer_window_bottom = self._buffer_window
         buffer_window_height = buffer_window_bottom - buffer_window_top
 
@@ -131,7 +129,7 @@ class TextBufferView:
             <= buffer_window_top
             <= self._line
             < buffer_window_bottom
-            <= self._text_buffer.number_of_lines()
+            <= len(self._text_buffer)
         )
 
     def draw(self, *, bottom_line_right: str = "") -> None:
@@ -154,17 +152,16 @@ class TextBufferView:
         )
         self._window.noutrefresh()
 
-        if self._text_buffer:
+        if self._text_buffer is not None:
             first, last = self._buffer_window
             for screen_line_number, buffer_line_number in zip(
                 range(last - first), range(first, last)
             ):
-                line = self._text_buffer.get_line(buffer_line_number)
+                line = self._text_buffer[buffer_line_number]
                 self._window.addstr(screen_line_number, 0, line)
 
             self._window.noutrefresh()
             curses.setsyx(self._line - self._buffer_window[0], self._column)
-
 
     def set_cursor(self, line: int, column: int) -> None:
         self._line = line
