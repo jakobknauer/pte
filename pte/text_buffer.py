@@ -12,6 +12,9 @@ class TextBuffer:
     def get_line(self, line_number: int) -> str:
         return self._lines[line_number]
 
+    def get_line_length(self, line_number: int) -> int:
+        return len(self.get_line(line_number))
+
     def __iter__(self):
         return iter(self._lines)
 

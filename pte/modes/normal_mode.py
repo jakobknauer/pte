@@ -137,13 +137,13 @@ class _CommandExecutor:
                 cursor.column = 0
                 return TransitionType.STAY
             case ("J",) if active_buffer:
-                cursor.line = -1
+                cursor.line = text_buffer.number_of_lines() - 1
                 return TransitionType.STAY
             case ("K",) if active_buffer:
                 cursor.line = 0
                 return TransitionType.STAY
             case ("L",) if active_buffer:
-                cursor.column = -1
+                cursor.column = text_buffer.get_line_length(cursor.line) - 1
                 return TransitionType.STAY
             case ("x",) if active_buffer:
                 line = cursor.line
@@ -151,7 +151,7 @@ class _CommandExecutor:
                 text_buffer.delete_in_line(
                     line_number=cursor.line, column_number=column
                 )
-                if column >= len(text_buffer.get_line(line)):
+                if column >= text_buffer.get_line_length(line):
                     cursor.move_left()
                 return TransitionType.STAY
             case ("X",) if active_buffer:
@@ -181,7 +181,7 @@ class _CommandExecutor:
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("A",) if active_buffer:
                 cursor.allow_extra_column = True
-                cursor.column = -1
+                cursor.column = text_buffer.get_line_length(cursor.line)
                 cursor.move_right()
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("o",) if active_buffer:

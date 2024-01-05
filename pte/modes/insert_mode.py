@@ -84,7 +84,7 @@ class InsertMode(Mode):
             case [c] if c == DEL:
                 self._command_buffer.clear()
 
-                if cursor.column < len(text_buffer.get_line(cursor.line)):
+                if cursor.column < text_buffer.get_line_length(cursor.line):
                     text_buffer.delete_in_line(
                         line_number=cursor.line,
                         column_number=cursor.column,
@@ -101,7 +101,7 @@ class InsertMode(Mode):
                     )
                     cursor.move_left()
                 elif cursor.line > 0:
-                    first_line_length = len(text_buffer.get_line(cursor.line - 1))
+                    first_line_length = text_buffer.get_line_length(cursor.line - 1)
                     text_buffer.join_lines(cursor.line - 1)
                     cursor.set(cursor.line - 1, first_line_length)
                 return TransitionType.STAY

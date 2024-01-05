@@ -25,16 +25,9 @@ class Cursor:
         self.set(self._line, column)
 
     def set(self, line: int, column: int) -> None:
-        if line < 0:
-            line = self._text_buffer.number_of_lines() + line
+        self._line = max(0, min(self._text_buffer.number_of_lines() - 1, line))
 
-        line = max(0, min(self._text_buffer.number_of_lines() - 1, line))
-        self._line = line
-
-        if column < 0:
-            column = len(self._text_buffer.get_line(self._line)) + column
-
-        max_column = (len(self._text_buffer.get_line(self._line)) - 1) + (
+        max_column = (self._text_buffer.get_line_length(self._line) - 1) + (
             1 if self.allow_extra_column else 0
         )
         self._column = max(0, min(column, max_column))
