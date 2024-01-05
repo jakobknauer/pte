@@ -39,7 +39,9 @@ class NormalMode(Mode):
                 self._cursor.line, self._cursor.column
             )
             self._view.text_buffer_view.consolidate_view_parameters()
-        self._view.draw(bottom_line_right=str(self._command_buffer))
+            self._view.draw(bottom_line_right=str(self._command_buffer))
+        else:
+            self._view.draw(bottom_line_right="[no buffer]", show_cursor=False)
 
     def update(self) -> Transition:
         self._command_buffer.append(self._view.read())

@@ -133,9 +133,6 @@ class TextBufferView:
         )
 
     def draw(self, *, bottom_line_right: str = "") -> None:
-        if self._window is None:
-            return
-
         self._window.erase()
 
         status_line_number = self.get_window_height() - STATUS_LINE_HEIGHT

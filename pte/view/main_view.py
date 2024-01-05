@@ -16,10 +16,13 @@ class MainView:
         self.text_buffer_view = TextBufferView(text_buffer_window)
         self.command_line_view = CommandLineView(command_line_window)
 
-    def draw(self, *, bottom_line_right: str = "") -> None:
+    def draw(self, *, show_cursor: bool = True, bottom_line_right: str = "") -> None:
         self._window.noutrefresh()
         self.text_buffer_view.draw(bottom_line_right=bottom_line_right)
         self.command_line_view.draw()
+
+        curses.curs_set(1 if show_cursor else 0)
+
         curses.doupdate()
 
     def read(self) -> str:
