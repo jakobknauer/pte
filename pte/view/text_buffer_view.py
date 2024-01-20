@@ -18,7 +18,7 @@ class TextBufferView:
 
         # the part of the buffer currently visible on screen, represented by the number of the
         # first visible line, and the the number of the first non-visible line below that.
-        self._buffer_window: tuple[int, int]
+        self._buffer_window: tuple[int, int] = (0, 0)
 
         # cursor position
         self._line: int = 0
@@ -26,11 +26,6 @@ class TextBufferView:
 
     def set_text_buffer(self, lines: list[str]) -> None:
         self._text_buffer = lines
-        self._buffer_window = (0, 0)
-        self._line = 0
-        self._column = 0
-
-        self.consolidate_view_parameters()
 
     def set_size(self, height: int, width: int) -> None:
         self._window.resize(height, width)
@@ -64,18 +59,8 @@ class TextBufferView:
         buffer_window_top, buffer_window_bottom = self._buffer_window
         buffer_window_height = buffer_window_bottom - buffer_window_top
 
-        # move buffer window to ensure it contains the cursor
-        if self._line >= buffer_window_bottom:
-            overflow = self._line - buffer_window_bottom + 1
-            buffer_window_top += overflow
-            buffer_window_bottom += overflow
-        elif self._line < buffer_window_top:
-            overflow = buffer_window_top - self._line
-            buffer_window_top -= overflow
-            buffer_window_bottom -= overflow
-
         # shrink buffer window it goes beyond the end of the buffer
-        buffer_window_bottom = max(buffer_window_bottom, len(self._text_buffer))
+        buffer_window_bottom = min(buffer_window_bottom, len(self._text_buffer))
 
         # grow buffer window if possible, shrink buffer window if needed
         available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
@@ -111,6 +96,16 @@ class TextBufferView:
             buffer_window_height = buffer_window_bottom - buffer_window_top
             assert 0 <= buffer_window_height <= available_screen_height
             assert buffer_window_top <= self._line < buffer_window_bottom
+
+        # move buffer window to ensure it contains the cursor
+        if self._line >= buffer_window_bottom:
+            overflow = self._line - buffer_window_bottom + 1
+            buffer_window_top += overflow
+            buffer_window_bottom += overflow
+        elif self._line < buffer_window_top:
+            overflow = buffer_window_top - self._line
+            buffer_window_top -= overflow
+            buffer_window_bottom -= overflow
 
         self._buffer_window = (buffer_window_top, buffer_window_bottom)
         self._assert_view_parameters_consistency()
