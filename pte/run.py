@@ -11,7 +11,7 @@ from pte.text_buffer_manager import TextBufferManager
 from pte.view import MainView
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("pte.run")
 
 
 def set_up_logging() -> None:
