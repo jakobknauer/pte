@@ -19,9 +19,7 @@ class CommandMode(Mode):
         self._document_buffer_manager = document_buffer_manager
         self._view = view
         self._command_buffer: list[str] = []
-        self._command_executor: _CommandExecutor = _CommandExecutor(
-            document_buffer_manager
-        )
+        self._command_executor: _CommandExecutor = _CommandExecutor(document_buffer_manager)
 
     def enter(self) -> None:
         self._view.document_view.status = self.name

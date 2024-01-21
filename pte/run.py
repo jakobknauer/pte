@@ -18,9 +18,7 @@ def set_up_logging() -> None:
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     log_directory = Path(os.environ["XDG_DATA_HOME"]) / "pte" / "log"
     log_directory.mkdir(parents=True, exist_ok=True)

@@ -30,9 +30,7 @@ class InsertMode(Mode):
         self._document_buffer = self._document_buffer_manager.active_buffer
         self._document_buffer.cursor.allow_extra_column = True
 
-        self._view.document_view.set_document(
-            list(self._document_buffer.document)
-        )
+        self._view.document_view.set_document(list(self._document_buffer.document))
         self._view.document_view.status = self.name
         self._view.document_view.status_color = colors.GREEN
 
@@ -44,9 +42,7 @@ class InsertMode(Mode):
         if not self._document_buffer:
             raise NotImplementedError("Cannot run insert mode without active buffer.")
 
-        self._view.document_view.set_document(
-            list(self._document_buffer.document)
-        )
+        self._view.document_view.set_document(list(self._document_buffer.document))
         self._view.document_view.set_cursor(
             self._document_buffer.cursor.line, self._document_buffer.cursor.column
         )
@@ -69,28 +65,19 @@ class InsertMode(Mode):
                 return (TransitionType.SWITCH, "NORMAL MODE")
             case [c] if c == RETURN:
                 self._command_buffer.clear()
-                document.split_line(
-                    line_number=cursor.line, column_number=cursor.column
-                )
+                document.split_line(line_number=cursor.line, column_number=cursor.column)
                 cursor.set(line=cursor.line + 1, column=0)
                 return TransitionType.STAY
             case [str(c)] if len(c) == 1 and c in string.printable:
                 self._command_buffer.clear()
-                document.insert(
-                    line_number=cursor.line,
-                    column_number=cursor.column,
-                    text=c,
-                )
+                document.insert(line_number=cursor.line, column_number=cursor.column, text=c)
                 cursor.move_right()
                 return TransitionType.STAY
             case [c] if c == DEL:
                 self._command_buffer.clear()
 
                 if cursor.column < document.get_line_length(cursor.line):
-                    document.delete_in_line(
-                        line_number=cursor.line,
-                        column_number=cursor.column,
-                    )
+                    document.delete_in_line(line_number=cursor.line, column_number=cursor.column)
                 elif cursor.line < document.number_of_lines() - 1:
                     document.join_lines(cursor.line)
 

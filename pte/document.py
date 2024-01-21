@@ -23,9 +23,7 @@ class Document:
         line = line[:column_number] + text + line[column_number:]
         self._lines[line_number] = line
 
-    def delete_in_line(
-        self, line_number: int, column_number: int, count: int = 1
-    ) -> None:
+    def delete_in_line(self, line_number: int, column_number: int, count: int = 1) -> None:
         if column_number < 0:
             return
         line = self._lines[line_number]

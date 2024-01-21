@@ -52,9 +52,7 @@ class ModeMachine:
                     self.switch_mode(new_mode)
                     continue
                 case (TransitionType.SWITCH, str(name)):
-                    self.error(
-                        f"Transition to unknown mode with name '{name}' requested."
-                    )
+                    self.error(f"Transition to unknown mode with name '{name}' requested.")
                     raise NotImplementedError(
                         f"Transition to unknown mode with name '{name}' requested."
                     )
@@ -63,9 +61,7 @@ class ModeMachine:
                     break
                 case _:
                     self.error(f"Invalid transition '{transition}' requested.")
-                    raise NotImplementedError(
-                        f"Invalid transition '{transition}' requested."
-                    )
+                    raise NotImplementedError(f"Invalid transition '{transition}' requested.")
 
         self.info(f"Final mode: {self._mode}.")
 

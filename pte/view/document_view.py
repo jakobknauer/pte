@@ -74,9 +74,7 @@ class DocumentView:
 
             # move top as far up as possible
             if buffer_window_height < available_screen_height:
-                buffer_window_top = max(
-                    0, buffer_window_bottom - available_screen_height
-                )
+                buffer_window_top = max(0, buffer_window_bottom - available_screen_height)
 
             buffer_window_height = buffer_window_bottom - buffer_window_top
             assert 0 <= buffer_window_height <= available_screen_height
@@ -119,13 +117,7 @@ class DocumentView:
         available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
 
         assert 0 <= buffer_window_height <= available_screen_height
-        assert (
-            0
-            <= buffer_window_top
-            <= self._line
-            < buffer_window_bottom
-            <= len(self._document)
-        )
+        assert 0 <= buffer_window_top <= self._line < buffer_window_bottom <= len(self._document)
 
     def draw(self, *, bottom_line_right: str = "") -> None:
         self._window.erase()

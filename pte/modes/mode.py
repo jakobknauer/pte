@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
 
-
 from .transition import Transition
 
 

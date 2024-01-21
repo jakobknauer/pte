@@ -7,9 +7,7 @@ from .transition import Transition, TransitionType
 
 
 class NormalMode(Mode):
-    def __init__(
-        self, document_buffer_manager: DocumentBufferManager, view: MainView
-    ) -> None:
+    def __init__(self, document_buffer_manager: DocumentBufferManager, view: MainView) -> None:
         super().__init__(name="NORMAL MODE")
         self._document_buffer_manager = document_buffer_manager
         self._view = view
@@ -32,9 +30,7 @@ class NormalMode(Mode):
 
     def draw(self) -> None:
         if self._document_buffer:
-            self._view.document_view.set_document(
-                list(self._document_buffer.document)
-            )
+            self._view.document_view.set_document(list(self._document_buffer.document))
             self._view.document_view.set_cursor(
                 self._document_buffer.cursor.line, self._document_buffer.cursor.column
             )
@@ -94,8 +90,7 @@ class _CommandBuffer:
 
     def is_prefix(self) -> bool:
         return any(
-            len(self.store) <= len(command)
-            and command[: len(self.store)] == tuple(self.store)
+            len(self.store) <= len(command) and command[: len(self.store)] == tuple(self.store)
             for command in _COMMANDS
         )
 
