@@ -3,6 +3,7 @@ import logging
 
 from .document import Document
 from .document_buffer import DocumentBuffer
+from .syntax_highlighting import SyntaxHighlighter, PythonHighlighter
 
 
 log = logging.getLogger(__name__)
@@ -25,7 +26,12 @@ class DocumentBufferManager:
             log.info(f"Successfully loaded file '{path}'.")
 
         new_document = Document(lines, path)
-        new_buffer = DocumentBuffer(new_document)
+
+        highlighter: SyntaxHighlighter | None = None
+        if path.suffix == ".py":
+            highlighter = PythonHighlighter(new_document)
+
+        new_buffer = DocumentBuffer(new_document, highlighter=highlighter)
         self.buffers.append(new_buffer)
         self.active_buffer = new_buffer
         return True

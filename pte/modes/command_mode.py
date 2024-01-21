@@ -1,8 +1,9 @@
 import string
 from pathlib import Path
 
+from pte import colors
 from pte.document_buffer_manager import DocumentBufferManager
-from pte.view import MainView, colors
+from pte.view import MainView
 
 from .mode import Mode
 from .transition import Transition, TransitionType

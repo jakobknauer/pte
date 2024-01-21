@@ -1,6 +1,7 @@
+from pte import colors
 from pte.document_buffer import DocumentBuffer
 from pte.document_buffer_manager import DocumentBufferManager
-from pte.view import MainView, colors
+from pte.view import MainView
 
 from .mode import Mode
 from .transition import Transition, TransitionType
@@ -20,6 +21,7 @@ class NormalMode(Mode):
         if self._document_buffer_manager.active_buffer:
             self._document_buffer = self._document_buffer_manager.active_buffer
             self._document_buffer.cursor.allow_extra_column = False
+            self._document_buffer.highlighter.update()
 
         self._view.document_view.status = self.name
         self._view.document_view.status_color = colors.CYAN
@@ -35,6 +37,12 @@ class NormalMode(Mode):
                 self._document_buffer.cursor.line, self._document_buffer.cursor.column
             )
             self._view.document_view.consolidate_view_parameters()
+
+            self._view.document_view.highlights = [
+                self._document_buffer.highlighter.get_highlights(line)
+                for line in range(self._document_buffer.document.number_of_lines())
+            ]
+
             self._view.draw(bottom_line_right=str(self._command_buffer))
         else:
             self._view.draw(bottom_line_right="[no buffer]", show_cursor=False)

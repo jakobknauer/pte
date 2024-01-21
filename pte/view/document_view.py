@@ -1,6 +1,7 @@
 import curses
 
-from . import colors
+from pte import colors
+from pte.highlight import Highlight
 
 
 STATUS_LINE_HEIGHT = 1
@@ -23,6 +24,8 @@ class DocumentView:
         # cursor position
         self._line: int = 0
         self._column: int = 0
+
+        self.highlights: list[list[Highlight]] = []
 
     def set_document(self, lines: list[str]) -> None:
         self._document = lines
@@ -121,7 +124,10 @@ class DocumentView:
 
     def draw(self, *, bottom_line_right: str = "") -> None:
         self._window.erase()
+        self._draw_status_line(bottom_line_right)
+        self._draw_document()
 
+    def _draw_status_line(self, bottom_line_right: str):
         status_line_number = self.get_window_height() - STATUS_LINE_HEIGHT
         self._window.addstr(
             status_line_number,
@@ -136,16 +142,26 @@ class DocumentView:
         )
         self._window.noutrefresh()
 
-        if self._document is not None:
-            first, last = self._buffer_window
-            for screen_line_number, buffer_line_number in zip(
-                range(last - first), range(first, last)
-            ):
-                line = self._document[buffer_line_number]
-                self._window.addstr(screen_line_number, 0, line)
+    def _draw_document(self):
+        if self._document is None:
+            return
 
-            self._window.noutrefresh()
-            curses.setsyx(self._line - self._buffer_window[0], self._column)
+        first, last = self._buffer_window
+        for screen_line_number, buffer_line_number in zip(range(last - first), range(first, last)):
+            line = self._document[buffer_line_number]
+            self._window.addstr(screen_line_number, 0, line)
+
+            line_hls = self.highlights[buffer_line_number] if self.highlights else []
+            for hl in line_hls:
+                self._window.addstr(
+                    screen_line_number,
+                    hl.column,
+                    line[hl.column : hl.column + hl.length],
+                    curses.color_pair(hl.foreground),
+                )
+
+        self._window.noutrefresh()
+        curses.setsyx(self._line - self._buffer_window[0], self._column)
 
     def set_cursor(self, line: int, column: int) -> None:
         self._line = line

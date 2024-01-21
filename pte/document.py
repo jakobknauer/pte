@@ -1,11 +1,29 @@
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Callable, TypeVar, ParamSpec, Concatenate
+from functools import wraps
+
+T = TypeVar("T")
+P = ParamSpec("P")
+
+
+def _modifies_document(
+    fn: Callable[Concatenate["Document", P], T]
+) -> Callable[Concatenate["Document", P], T]:
+    @wraps(fn)
+    def wrapped_fn(self: "Document", *args: P.args, **kwargs: P.kwargs) -> T:
+        return_value: T = fn(self, *args, **kwargs)
+        for handler in self._subscribers:  # pylint: disable=protected-access
+            handler()
+        return return_value
+
+    return wrapped_fn
 
 
 class Document:
     def __init__(self, lines: list[str], path: Path | None = None):
         self._lines = lines
         self.path = path
+        self._subscribers: list[Callable[[], None]] = []
 
     def number_of_lines(self) -> int:
         return len(self._lines)
@@ -19,11 +37,13 @@ class Document:
     def __iter__(self) -> Iterator[str]:
         return iter(self._lines)
 
+    @_modifies_document
     def insert(self, line_number: int, column_number: int, text: str) -> None:
         line = self._lines[line_number]
         line = line[:column_number] + text + line[column_number:]
         self._lines[line_number] = line
 
+    @_modifies_document
     def delete_in_line(self, line_number: int, column_number: int, count: int = 1) -> None:
         if column_number < 0:
             return
@@ -31,6 +51,7 @@ class Document:
         line = line[:column_number] + line[column_number + count :]
         self._lines[line_number] = line
 
+    @_modifies_document
     def split_line(self, line_number: int, column_number: int) -> None:
         line = self._lines[line_number]
         new_line = line[column_number:]
@@ -38,6 +59,7 @@ class Document:
         self._lines[line_number] = line
         self._lines.insert(line_number + 1, new_line)
 
+    @_modifies_document
     def join_lines(self, first_line_number: int) -> None:
         if first_line_number < 0:
             raise ValueError(
@@ -59,10 +81,28 @@ class Document:
         self._lines[first_line_number] = first_line + second_line
         del self._lines[first_line_number + 1]
 
+    @_modifies_document
     def insert_line(self, line_number: int, text: str = "") -> None:
         self._lines.insert(line_number, text)
 
+    @_modifies_document
     def delete_line(self, line_number: int) -> None:
         del self._lines[line_number]
         if not self._lines:
             self._lines.append("")
+
+    def text(self) -> str:
+        return "\n".join(self._lines)
+
+    def get_coordinates(self, index: int) -> tuple[int, int]:
+        line_number = 0
+        char_counter = 0
+
+        while char_counter + len(self._lines[line_number]) + 1 <= index:
+            char_counter += len(self._lines[line_number]) + 1
+            line_number += 1
+
+        return line_number, index - char_counter
+
+    def subscribe(self, handler: Callable[[], None]) -> None:
+        self._subscribers.append(handler)

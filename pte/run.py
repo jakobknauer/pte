@@ -16,7 +16,7 @@ log = logging.getLogger("pte.run")
 
 def set_up_logging() -> None:
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
@@ -24,7 +24,7 @@ def set_up_logging() -> None:
     log_directory.mkdir(parents=True, exist_ok=True)
 
     fh = logging.FileHandler(log_directory / "log.txt", "w+")
-    fh.setLevel(logging.INFO)
+    fh.setLevel(logging.DEBUG)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
