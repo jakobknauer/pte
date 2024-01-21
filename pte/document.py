@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-class TextBuffer:
+class Document:
     def __init__(self, lines: list[str], path: Path | None = None):
         self._lines = lines
         self.path = path

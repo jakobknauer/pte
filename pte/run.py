@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 
 from pte import modes
-from pte.text_buffer_manager import TextBufferManager
+from pte.document_buffer_manager import DocumentBufferManager
 from pte.view import MainView
 
 
@@ -50,20 +50,20 @@ def run(stdscr: curses.window, args: argparse.Namespace) -> None:
         curses.init_pair(i + 1, i, -1)
     view = MainView(stdscr)
 
-    log.info("Setting up text buffer manager.")
+    log.info("Setting up document buffer manager.")
 
-    text_buffer_manager = TextBufferManager()
+    document_buffer_manager = DocumentBufferManager()
 
     log.info("Setting up modes.")
 
-    normal = modes.NormalMode(text_buffer_manager, view)
-    insert = modes.InsertMode(text_buffer_manager, view)
-    command = modes.CommandMode(text_buffer_manager, view)
+    normal = modes.NormalMode(document_buffer_manager, view)
+    insert = modes.InsertMode(document_buffer_manager, view)
+    command = modes.CommandMode(document_buffer_manager, view)
 
     log.info("Initializing buffers.")
 
     if args.filename:
-        text_buffer_manager.load_file(Path(args.filename))
+        document_buffer_manager.load_file(Path(args.filename))
 
     log.info("Run mode machine.")
 

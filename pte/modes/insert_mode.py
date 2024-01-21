@@ -1,8 +1,7 @@
 import string
 
-from pte.text_buffer import TextBuffer
-from pte.text_buffer_manager import TextBufferManager
-from pte.cursor import Cursor
+from pte.document_buffer import DocumentBuffer
+from pte.document_buffer_manager import DocumentBufferManager
 from pte.view import MainView, colors
 
 from .mode import Mode
@@ -16,48 +15,52 @@ RETURN = "\n"
 
 
 class InsertMode(Mode):
-    def __init__(self, text_buffer_manager: TextBufferManager, view: MainView):
+    def __init__(self, document_buffer_manager: DocumentBufferManager, view: MainView):
         super().__init__(name="INSERT MODE")
-        self._text_buffer_manager = text_buffer_manager
+        self._document_buffer_manager = document_buffer_manager
         self._view = view
         self._command_buffer: list[str] = []
 
-        self._text_buffer: TextBuffer | None = None
-        self._cursor: Cursor | None = None
+        self._document_buffer: DocumentBuffer | None = None
 
     def enter(self) -> None:
-        if not self._text_buffer_manager.active_buffer:
+        if not self._document_buffer_manager.active_buffer:
             raise NotImplementedError("Cannot run insert mode without active buffer.")
 
-        self._text_buffer = self._text_buffer_manager.active_buffer[0]
-        self._cursor = self._text_buffer_manager.active_buffer[1]
-        self._cursor.allow_extra_column = True
+        self._document_buffer = self._document_buffer_manager.active_buffer
+        self._document_buffer.cursor.allow_extra_column = True
 
-        self._view.text_buffer_view.set_text_buffer(list(self._text_buffer))
-        self._view.text_buffer_view.status = self.name
-        self._view.text_buffer_view.status_color = colors.GREEN
+        self._view.document_view.set_document(
+            list(self._document_buffer.document)
+        )
+        self._view.document_view.status = self.name
+        self._view.document_view.status_color = colors.GREEN
 
     def leave(self) -> None:
-        self._view.text_buffer_view.status = f"LEFT {self.name}"
+        self._view.document_view.status = f"LEFT {self.name}"
         self._command_buffer.clear()
 
     def draw(self) -> None:
-        if not self._cursor or not self._text_buffer:
+        if not self._document_buffer:
             raise NotImplementedError("Cannot run insert mode without active buffer.")
 
-        self._view.text_buffer_view.set_text_buffer(list(self._text_buffer))
-        self._view.text_buffer_view.set_cursor(self._cursor.line, self._cursor.column)
-        self._view.text_buffer_view.consolidate_view_parameters()
+        self._view.document_view.set_document(
+            list(self._document_buffer.document)
+        )
+        self._view.document_view.set_cursor(
+            self._document_buffer.cursor.line, self._document_buffer.cursor.column
+        )
+        self._view.document_view.consolidate_view_parameters()
         self._view.draw()
 
     def update(self) -> Transition:
-        if not self._cursor or not self._text_buffer:
+        if not self._document_buffer:
             raise NotImplementedError("Cannot run insert mode without active buffer.")
 
         self._command_buffer.append(self._view.read())
 
-        text_buffer = self._text_buffer
-        cursor = self._cursor
+        document = self._document_buffer.document
+        cursor = self._document_buffer.cursor
 
         match self._command_buffer:
             case [c] if c == ESCAPE:
@@ -66,15 +69,14 @@ class InsertMode(Mode):
                 return (TransitionType.SWITCH, "NORMAL MODE")
             case [c] if c == RETURN:
                 self._command_buffer.clear()
-                text_buffer.split_line(
-                    line_number=cursor.line,
-                    column_number=cursor.column,
+                document.split_line(
+                    line_number=cursor.line, column_number=cursor.column
                 )
                 cursor.set(line=cursor.line + 1, column=0)
                 return TransitionType.STAY
             case [str(c)] if len(c) == 1 and c in string.printable:
                 self._command_buffer.clear()
-                text_buffer.insert(
+                document.insert(
                     line_number=cursor.line,
                     column_number=cursor.column,
                     text=c,
@@ -84,25 +86,25 @@ class InsertMode(Mode):
             case [c] if c == DEL:
                 self._command_buffer.clear()
 
-                if cursor.column < text_buffer.get_line_length(cursor.line):
-                    text_buffer.delete_in_line(
+                if cursor.column < document.get_line_length(cursor.line):
+                    document.delete_in_line(
                         line_number=cursor.line,
                         column_number=cursor.column,
                     )
-                elif cursor.line < text_buffer.number_of_lines() - 1:
-                    text_buffer.join_lines(cursor.line)
+                elif cursor.line < document.number_of_lines() - 1:
+                    document.join_lines(cursor.line)
 
                 return TransitionType.STAY
             case [c] if c == BACKSPACE:
                 self._command_buffer.clear()
                 if cursor.column > 0:
-                    text_buffer.delete_in_line(
+                    document.delete_in_line(
                         line_number=cursor.line, column_number=cursor.column - 1
                     )
                     cursor.move_left()
                 elif cursor.line > 0:
-                    first_line_length = text_buffer.get_line_length(cursor.line - 1)
-                    text_buffer.join_lines(cursor.line - 1)
+                    first_line_length = document.get_line_length(cursor.line - 1)
+                    document.join_lines(cursor.line - 1)
                     cursor.set(cursor.line - 1, first_line_length)
                 return TransitionType.STAY
             case _:

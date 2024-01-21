@@ -1,9 +1,9 @@
-from .text_buffer import TextBuffer
+from .document import Document
 
 
 class Cursor:
-    def __init__(self, text_buffer: TextBuffer) -> None:
-        self._text_buffer = text_buffer
+    def __init__(self, document: Document) -> None:
+        self._document = document
         self._line = 0
         self._column = 0
         self.allow_extra_column = False
@@ -25,9 +25,9 @@ class Cursor:
         self.set(self._line, column)
 
     def set(self, line: int, column: int) -> None:
-        self._line = max(0, min(self._text_buffer.number_of_lines() - 1, line))
+        self._line = max(0, min(self._document.number_of_lines() - 1, line))
 
-        max_column = (self._text_buffer.get_line_length(self._line) - 1) + (
+        max_column = (self._document.get_line_length(self._line) - 1) + (
             1 if self.allow_extra_column else 0
         )
         self._column = max(0, min(column, max_column))

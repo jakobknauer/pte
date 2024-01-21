@@ -6,13 +6,13 @@ from . import colors
 STATUS_LINE_HEIGHT = 1
 
 
-class TextBufferView:
+class DocumentView:
     def __init__(self, window: curses.window) -> None:
         # curses stuff
         self._window = window
 
         # view content
-        self._text_buffer: list[str] | None = None
+        self._document: list[str] | None = None
         self.status: str = ""
         self.status_color: colors.Color = colors.DEFAULT
 
@@ -24,8 +24,8 @@ class TextBufferView:
         self._line: int = 0
         self._column: int = 0
 
-    def set_text_buffer(self, lines: list[str]) -> None:
-        self._text_buffer = lines
+    def set_document(self, lines: list[str]) -> None:
+        self._document = lines
 
     def set_size(self, height: int, width: int) -> None:
         self._window.resize(height, width)
@@ -36,11 +36,11 @@ class TextBufferView:
         """Ensures the consistency of the view parameters with relevant environment parameters.
 
         The view parameters encompasses the buffer window.
-        The relevant environment parameters encompass the text buffer, cursor, and screen size.
+        The relevant environment parameters encompass the document, cursor, and screen size.
 
         Should be called whenever one of the following has changed:
             - _window, or its size
-            - _text_buffer, or its size
+            - _document, or its size
             - the cursor position (more specifically, _line)
 
         If the cursor is outside of the buffer window, move the buffer window until it contains
@@ -53,21 +53,21 @@ class TextBufferView:
         If the screen height decreased, shrink the buffer window from the bottom upwards towards
         the cursor as far as possible; then, if needed, from the top downwards towards the cursor.
         """
-        if not self._text_buffer:
+        if not self._document:
             return
 
         buffer_window_top, buffer_window_bottom = self._buffer_window
         buffer_window_height = buffer_window_bottom - buffer_window_top
 
         # shrink buffer window it goes beyond the end of the buffer
-        buffer_window_bottom = min(buffer_window_bottom, len(self._text_buffer))
+        buffer_window_bottom = min(buffer_window_bottom, len(self._document))
 
         # grow buffer window if possible, shrink buffer window if needed
         available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
         if buffer_window_height <= available_screen_height:
             # move bottom as far down as possible
             buffer_window_bottom = min(
-                len(self._text_buffer), buffer_window_top + available_screen_height
+                len(self._document), buffer_window_top + available_screen_height
             )
             buffer_window_height = buffer_window_bottom - buffer_window_top
             assert 0 <= buffer_window_height <= available_screen_height
@@ -111,7 +111,7 @@ class TextBufferView:
         self._assert_view_parameters_consistency()
 
     def _assert_view_parameters_consistency(self) -> None:
-        assert self._text_buffer is not None
+        assert self._document is not None
 
         buffer_window_top, buffer_window_bottom = self._buffer_window
         buffer_window_height = buffer_window_bottom - buffer_window_top
@@ -124,7 +124,7 @@ class TextBufferView:
             <= buffer_window_top
             <= self._line
             < buffer_window_bottom
-            <= len(self._text_buffer)
+            <= len(self._document)
         )
 
     def draw(self, *, bottom_line_right: str = "") -> None:
@@ -144,12 +144,12 @@ class TextBufferView:
         )
         self._window.noutrefresh()
 
-        if self._text_buffer is not None:
+        if self._document is not None:
             first, last = self._buffer_window
             for screen_line_number, buffer_line_number in zip(
                 range(last - first), range(first, last)
             ):
-                line = self._text_buffer[buffer_line_number]
+                line = self._document[buffer_line_number]
                 self._window.addstr(screen_line_number, 0, line)
 
             self._window.noutrefresh()
