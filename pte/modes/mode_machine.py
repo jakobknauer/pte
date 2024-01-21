@@ -7,7 +7,7 @@ from .transition import TransitionType
 class ModeMachine:
     def __init__(self, *modes: Mode, logger: logging.Logger | None = None) -> None:
         self._mode: Mode | None = None
-        self._modes = {state.name: state for state in modes}
+        self._modes = {mode.name: mode for mode in modes}
         self._logger = logger or logging.getLogger(__name__)
 
     def switch_mode(self, new_mode: Mode | None) -> None:
