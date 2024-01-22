@@ -32,14 +32,14 @@ class Cursor:
         )
         self._column = max(0, min(column, max_column))
 
-    def move_up(self, lines=1) -> None:
+    def move_up(self, lines: int = 1) -> None:
         self.set(self.line - lines, self.column)
 
-    def move_down(self, lines=1) -> None:
+    def move_down(self, lines: int = 1) -> None:
         self.set(self.line + lines, self.column)
 
-    def move_left(self, columns=1) -> None:
+    def move_left(self, columns: int = 1) -> None:
         self.set(self.line, max(0, self.column - columns))
 
-    def move_right(self, columns=1) -> None:
+    def move_right(self, columns: int = 1) -> None:
         self.set(self.line, self.column + columns)

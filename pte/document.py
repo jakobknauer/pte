@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterator
 
 
 class Document:
@@ -15,7 +16,7 @@ class Document:
     def get_line_length(self, line_number: int) -> int:
         return len(self.get_line(line_number))
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         return iter(self._lines)
 
     def insert(self, line_number: int, column_number: int, text: str) -> None:

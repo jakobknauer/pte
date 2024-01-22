@@ -65,11 +65,11 @@ class ModeMachine:
 
         self.info(f"Final mode: {self._mode}.")
 
-    def debug(self, *args, **kwargs) -> None:
-        self._logger.debug(*args, **kwargs)
+    def debug(self, message: str) -> None:
+        self._logger.debug(message)
 
-    def info(self, *args, **kwargs) -> None:
-        self._logger.info(*args, **kwargs)
+    def info(self, message: str) -> None:
+        self._logger.info(message)
 
-    def error(self, *args, **kwargs) -> None:
-        self._logger.error(*args, **kwargs)
+    def error(self, message: str, *, exc_info: bool = False) -> None:
+        self._logger.error(message, exc_info=exc_info)

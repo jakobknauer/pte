@@ -7,7 +7,7 @@ class CommandLineView:
         self.active = False
         self.command = ""
 
-    def draw(self):
+    def draw(self) -> None:
         if not self.active:
             return
 
@@ -15,7 +15,7 @@ class CommandLineView:
         self._window.addstr(0, 0, f":{self.command}")
         self._window.noutrefresh()
 
-    def clear(self):
+    def clear(self) -> None:
         self.command = ""
         self._window.erase()
         self._window.noutrefresh()
