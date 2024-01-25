@@ -1,0 +1,4 @@
+black==23.12.1
+mypy==1.8.0
+lxml==5.1.0
+types-Pygments==2.17.0.20240106
