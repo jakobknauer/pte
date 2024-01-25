@@ -127,7 +127,7 @@ class DocumentView:
         self._draw_status_line(bottom_line_right)
         self._draw_document()
 
-    def _draw_status_line(self, bottom_line_right: str):
+    def _draw_status_line(self, bottom_line_right: str) -> None:
         status_line_number = self.get_window_height() - STATUS_LINE_HEIGHT
         self._window.addstr(
             status_line_number,
@@ -142,7 +142,7 @@ class DocumentView:
         )
         self._window.noutrefresh()
 
-    def _draw_document(self):
+    def _draw_document(self) -> None:
         if self._document is None:
             return
 
