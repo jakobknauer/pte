@@ -13,6 +13,9 @@ ESCAPE = "\x1b"
 DEL = "KEY_DC"
 BACKSPACE = "KEY_BACKSPACE"
 RETURN = "\n"
+TAB = "\t"
+
+SPACES_PER_TAB = 4
 
 
 class InsertMode(Mode):
@@ -75,6 +78,12 @@ class InsertMode(Mode):
                 self._command_buffer.clear()
                 document.split_line(line_number=cursor.line, column_number=cursor.column)
                 cursor.set(line=cursor.line + 1, column=0)
+                return TransitionType.STAY
+            case [c] if c == TAB:
+                self._command_buffer.clear()
+                spaces = SPACES_PER_TAB * " "
+                document.insert(line_number=cursor.line, column_number=cursor.column, text=spaces)
+                cursor.move_right(SPACES_PER_TAB)
                 return TransitionType.STAY
             case [str(c)] if len(c) == 1 and c in string.printable:
                 self._command_buffer.clear()
