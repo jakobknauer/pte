@@ -39,12 +39,70 @@ class DocumentView:
     def document(self, lines: list[str]) -> None:
         self._document = lines
 
+    @property
+    def cursor(self) -> tuple[int, int]:
+        return (self._line, self._column)
+
+    @cursor.setter
+    def cursor(self, coordinates: tuple[int, int]) -> None:
+        self._line, self._column = coordinates
+
+    @property
+    def window_height(self) -> int:
+        return self._window.getmaxyx()[0]
+
+    @property
+    def window_width(self) -> int:
+        return self._window.getmaxyx()[1]
+
     def set_size(self, height: int, width: int) -> None:
         self._window.resize(height, width)
+        self._consolidate_view_parameters()
 
-        self.consolidate_view_parameters()
+    def draw(self, *, bottom_line_right: str = "") -> None:
+        self._consolidate_view_parameters()
+        self._window.erase()
+        self._draw_status_line(bottom_line_right)
+        self._draw_document()
 
-    def consolidate_view_parameters(self) -> None:
+    def _draw_status_line(self, bottom_line_right: str) -> None:
+        status_line_number = self.window_height - STATUS_LINE_HEIGHT
+        self._window.addstr(
+            status_line_number,
+            0,
+            f" {self.status} ",
+            curses.color_pair(self.status_color) ^ curses.A_REVERSE ^ curses.A_BOLD,
+        )
+        self._window.addstr(
+            status_line_number,
+            self.window_width - 1 - len(bottom_line_right),
+            bottom_line_right,
+        )
+        self._window.noutrefresh()
+
+    def _draw_document(self) -> None:
+        if self.document is None:
+            return
+
+        first, last = self._buffer_window
+
+        for screen_line_number, buffer_line_number in zip(range(last - first), range(first, last)):
+            line = self.document[buffer_line_number]
+            self._window.addstr(screen_line_number, 0, line)
+
+            line_hls = self.highlights[buffer_line_number] if self.highlights else []
+            for hl in line_hls:
+                self._window.addstr(
+                    screen_line_number,
+                    hl.column,
+                    line[hl.column : hl.column + hl.length],
+                    curses.color_pair(hl.foreground),
+                )
+
+        self._window.noutrefresh()
+        curses.setsyx(self._line - self._buffer_window[0], self._column)
+
+    def _consolidate_view_parameters(self) -> None:
         """Ensures the consistency of the view parameters with relevant environment parameters.
 
         The view parameters encompasses the buffer window.
@@ -78,7 +136,7 @@ class DocumentView:
         buffer_window_bottom = min(buffer_window_bottom, len(self.document))
 
         # grow buffer window if possible, shrink buffer window if needed
-        available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
+        available_screen_height = self.window_height - STATUS_LINE_HEIGHT
         if buffer_window_height <= available_screen_height:
             # move bottom as far down as possible
             buffer_window_bottom = min(
@@ -129,59 +187,7 @@ class DocumentView:
         buffer_window_top, buffer_window_bottom = self._buffer_window
         buffer_window_height = buffer_window_bottom - buffer_window_top
 
-        available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
+        available_screen_height = self.window_height - STATUS_LINE_HEIGHT
 
         assert 0 <= buffer_window_height <= available_screen_height
         assert 0 <= buffer_window_top <= self._line < buffer_window_bottom <= len(self.document)
-
-    def draw(self, *, bottom_line_right: str = "") -> None:
-        self._window.erase()
-        self._draw_status_line(bottom_line_right)
-        self._draw_document()
-
-    def _draw_status_line(self, bottom_line_right: str) -> None:
-        status_line_number = self.get_window_height() - STATUS_LINE_HEIGHT
-        self._window.addstr(
-            status_line_number,
-            0,
-            f" {self.status} ",
-            curses.color_pair(self.status_color) ^ curses.A_REVERSE ^ curses.A_BOLD,
-        )
-        self._window.addstr(
-            status_line_number,
-            self.get_screen_width() - 1 - len(bottom_line_right),
-            bottom_line_right,
-        )
-        self._window.noutrefresh()
-
-    def _draw_document(self) -> None:
-        if self.document is None:
-            return
-
-        first, last = self._buffer_window
-
-        for screen_line_number, buffer_line_number in zip(range(last - first), range(first, last)):
-            line = self.document[buffer_line_number]
-            self._window.addstr(screen_line_number, 0, line)
-
-            line_hls = self.highlights[buffer_line_number] if self.highlights else []
-            for hl in line_hls:
-                self._window.addstr(
-                    screen_line_number,
-                    hl.column,
-                    line[hl.column : hl.column + hl.length],
-                    curses.color_pair(hl.foreground),
-                )
-
-        self._window.noutrefresh()
-        curses.setsyx(self._line - self._buffer_window[0], self._column)
-
-    def set_cursor(self, line: int, column: int) -> None:
-        self._line = line
-        self._column = column
-
-    def get_window_height(self) -> int:
-        return self._window.getmaxyx()[0]
-
-    def get_screen_width(self) -> int:
-        return self._window.getmaxyx()[1]

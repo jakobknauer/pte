@@ -48,10 +48,10 @@ class InsertMode(Mode):
             raise NotImplementedError("Cannot run insert mode without active buffer.")
 
         self._view.document_view.document = list(self._document_buffer.document)
-        self._view.document_view.set_cursor(
-            self._document_buffer.cursor.line, self._document_buffer.cursor.column
+        self._view.document_view.cursor = (
+            self._document_buffer.cursor.line,
+            self._document_buffer.cursor.column,
         )
-        self._view.document_view.consolidate_view_parameters()
 
         self._view.document_view.highlights = [
             self._document_buffer.highlighter.get_highlights(line)
