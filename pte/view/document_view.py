@@ -1,7 +1,11 @@
 import curses
+import logging
 
 from pte import colors
 from pte.highlight import Highlight
+
+
+log = logging.getLogger(__name__)
 
 
 STATUS_LINE_HEIGHT = 1
@@ -57,6 +61,9 @@ class DocumentView:
         the cursor as far as possible; then, if needed, from the top downwards towards the cursor.
         """
         if not self._document:
+            self._line = 0
+            self._column = 0
+            self._buffer_window = (0, 0)
             return
 
         buffer_window_top, buffer_window_bottom = self._buffer_window
@@ -147,6 +154,7 @@ class DocumentView:
             return
 
         first, last = self._buffer_window
+
         for screen_line_number, buffer_line_number in zip(range(last - first), range(first, last)):
             line = self._document[buffer_line_number]
             self._window.addstr(screen_line_number, 0, line)

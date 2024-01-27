@@ -63,7 +63,7 @@ class DocumentBufferManager:
 
     def load_empty_buffer(self) -> None:
         log.info("Creating empty buffer.")
-        new_document = Document([""])
+        new_document = Document([])
         new_buffer = DocumentBuffer(new_document)
         self.buffers.append(new_buffer)
         self.active_buffer = new_buffer

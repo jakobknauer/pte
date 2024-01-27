@@ -24,13 +24,25 @@ class Cursor:
     def column(self, column: int) -> None:
         self.set(self._line, column)
 
-    def set(self, line: int, column: int) -> None:
-        self._line = max(0, min(self._document.number_of_lines() - 1, line))
+    @property
+    def max_line(self) -> int:
+        if self._document.is_empty:
+            return 0
+        else:
+            return self._document.number_of_lines() - 1
 
-        max_column = (self._document.get_line_length(self._line) - 1) + (
-            1 if self.allow_extra_column else 0
-        )
-        self._column = max(0, min(column, max_column))
+    @property
+    def max_column(self) -> int:
+        if self._document.is_empty:
+            return 0
+        elif self.allow_extra_column:
+            return self._document.get_line_length(self._line)
+        else:
+            return self._document.get_line_length(self._line) - 1
+
+    def set(self, line: int, column: int) -> None:
+        self._line = max(0, min(line, self.max_line))
+        self._column = max(0, min(column, self.max_column))
 
     def move_up(self, lines: int = 1) -> None:
         self.set(self.line - lines, self.column)

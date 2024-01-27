@@ -140,29 +140,29 @@ class _CommandExecutor:
                 cursor.column = 0
                 return TransitionType.STAY
             case ("J",) if active_buffer:
-                cursor.line = document.number_of_lines() - 1
+                cursor.line = cursor.max_line
                 return TransitionType.STAY
             case ("K",) if active_buffer:
                 cursor.line = 0
                 return TransitionType.STAY
             case ("L",) if active_buffer:
-                cursor.column = document.get_line_length(cursor.line) - 1
+                cursor.column = cursor.max_column
                 return TransitionType.STAY
-            case ("x",) if active_buffer:
+            case ("x",) if active_buffer and not document.is_empty:
                 line = cursor.line
                 column = cursor.column
                 document.delete_in_line(line_number=cursor.line, column_number=column)
                 if column >= document.get_line_length(line):
                     cursor.move_left()
                 return TransitionType.STAY
-            case ("X",) if active_buffer:
+            case ("X",) if active_buffer and not document.is_empty:
                 line = cursor.line
                 column = cursor.column
                 if column > 0:
                     document.delete_in_line(line_number=line, column_number=column - 1)
                     cursor.move_left()
                 return TransitionType.STAY
-            case ("d", "d") if active_buffer:
+            case ("d", "d") if active_buffer and not document.is_empty:
                 line = cursor.line
                 document.delete_line(line)
                 if line >= document.number_of_lines():
@@ -170,15 +170,23 @@ class _CommandExecutor:
                 cursor.column = 0
                 return TransitionType.STAY
             case ("i",) if active_buffer:
+                if document.is_empty:
+                    document.insert_line(0)
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("a",) if active_buffer:
+                if document.is_empty:
+                    document.insert_line(0)
                 cursor.allow_extra_column = True
                 cursor.move_right()
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("I",) if active_buffer:
+                if document.is_empty:
+                    document.insert_line(0)
                 cursor.column = 0
                 return (TransitionType.SWITCH, "INSERT MODE")
             case ("A",) if active_buffer:
+                if document.is_empty:
+                    document.insert_line(0)
                 cursor.allow_extra_column = True
                 cursor.column = document.get_line_length(cursor.line)
                 cursor.move_right()

@@ -1,6 +1,11 @@
+from functools import wraps
+import logging
 from pathlib import Path
 from typing import Iterator, Callable, TypeVar, ParamSpec, Concatenate
-from functools import wraps
+
+
+log = logging.getLogger(__name__)
+
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -27,6 +32,10 @@ class Document:
 
     def number_of_lines(self) -> int:
         return len(self._lines)
+
+    @property
+    def is_empty(self) -> bool:
+        return not self._lines
 
     def get_line(self, line_number: int) -> str:
         return self._lines[line_number]
@@ -84,12 +93,14 @@ class Document:
     @_modifies_document
     def insert_line(self, line_number: int, text: str = "") -> None:
         self._lines.insert(line_number, text)
+        log.debug(f"Inserting line {line_number}.")
 
     @_modifies_document
     def delete_line(self, line_number: int) -> None:
+        if line_number < 0 or line_number >= len(self._lines):
+            log.warning(f"Cannot delete line {line_number}.")
+            return
         del self._lines[line_number]
-        if not self._lines:
-            self._lines.append("")
 
     def text(self) -> str:
         return "\n".join(self._lines)
