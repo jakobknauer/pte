@@ -5,6 +5,7 @@ import curses
 import logging
 import os
 from pathlib import Path
+from importlib import metadata
 
 from pte import modes
 from pte.document_buffer_manager import DocumentBufferManager
@@ -34,6 +35,7 @@ def get_args() -> argparse.Namespace:
         prog="pte", description="A modal command-line text editor written in Python"
     )
     parser.add_argument("filename", nargs="?")
+    parser.add_argument("-v", "--version", action="version", version=metadata.version("pte"))
     return parser.parse_args()
 
 
@@ -73,8 +75,8 @@ def run(stdscr: curses.window, args: argparse.Namespace) -> None:
 
 
 def main() -> None:
-    set_up_logging()
     args = get_args()
+    set_up_logging()
     curses.wrapper(run, args)
 
 
