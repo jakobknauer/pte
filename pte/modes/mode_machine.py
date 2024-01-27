@@ -47,18 +47,22 @@ class ModeMachine:
                 case TransitionType.STAY:
                     self.debug(f"Stay in {self._mode}.")
                     continue
+
                 case (TransitionType.SWITCH, str(name)) if name in self._modes:
                     new_mode = self._modes[name]
                     self.switch_mode(new_mode)
                     continue
+
                 case (TransitionType.SWITCH, str(name)):
                     self.error(f"Transition to unknown mode with name '{name}' requested.")
                     raise NotImplementedError(
                         f"Transition to unknown mode with name '{name}' requested."
                     )
+
                 case TransitionType.QUIT | None:
                     self.debug(f"Quit from final mode {self._mode}")
                     break
+
                 case _:
                     self.error(f"Invalid transition '{transition}' requested.")
                     raise NotImplementedError(f"Invalid transition '{transition}' requested.")

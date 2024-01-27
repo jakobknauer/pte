@@ -74,22 +74,26 @@ class InsertMode(Mode):
                 self._command_buffer.clear()
                 cursor.move_left()
                 return (TransitionType.SWITCH, "NORMAL MODE")
+
             case [c] if c == RETURN:
                 self._command_buffer.clear()
                 document.split_line(line_number=cursor.line, column_number=cursor.column)
                 cursor.set(line=cursor.line + 1, column=0)
                 return TransitionType.STAY
+
             case [c] if c == TAB:
                 self._command_buffer.clear()
                 spaces = SPACES_PER_TAB * " "
                 document.insert(line_number=cursor.line, column_number=cursor.column, text=spaces)
                 cursor.move_right(SPACES_PER_TAB)
                 return TransitionType.STAY
+
             case [str(c)] if len(c) == 1 and c in string.printable:
                 self._command_buffer.clear()
                 document.insert(line_number=cursor.line, column_number=cursor.column, text=c)
                 cursor.move_right()
                 return TransitionType.STAY
+
             case [c] if c == DEL:
                 self._command_buffer.clear()
 
@@ -99,6 +103,7 @@ class InsertMode(Mode):
                     document.join_lines(cursor.line)
 
                 return TransitionType.STAY
+
             case [c] if c == BACKSPACE:
                 self._command_buffer.clear()
                 if cursor.column > 0:
@@ -111,6 +116,7 @@ class InsertMode(Mode):
                     document.join_lines(cursor.line - 1)
                     cursor.set(cursor.line - 1, first_line_length)
                 return TransitionType.STAY
+
             case _:
                 self._command_buffer.clear()
                 return TransitionType.STAY
