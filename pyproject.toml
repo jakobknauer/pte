@@ -5,11 +5,6 @@ description = "A modal command-line text editor written in Python"
 authors = [{name = "Jakob Knauer"}]
 dynamic = ["dependencies"]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["pte*"]
-namespaces = false
-
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
 
