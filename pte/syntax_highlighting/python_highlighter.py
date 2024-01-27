@@ -41,7 +41,7 @@ class PythonHighlighter:
         document.subscribe(self.update)
 
     def update(self) -> None:
-        code = self._document.text()
+        code = self._document.text
         tokens = self._lexer.get_tokens_unprocessed(code)
         self._highlights.clear()
 

@@ -31,7 +31,12 @@ class DocumentView:
 
         self.highlights: list[list[Highlight]] = []
 
-    def set_document(self, lines: list[str]) -> None:
+    @property
+    def document(self) -> list[str] | None:
+        return self._document
+
+    @document.setter
+    def document(self, lines: list[str]) -> None:
         self._document = lines
 
     def set_size(self, height: int, width: int) -> None:
@@ -60,7 +65,7 @@ class DocumentView:
         If the screen height decreased, shrink the buffer window from the bottom upwards towards
         the cursor as far as possible; then, if needed, from the top downwards towards the cursor.
         """
-        if not self._document:
+        if not self.document:
             self._line = 0
             self._column = 0
             self._buffer_window = (0, 0)
@@ -70,14 +75,14 @@ class DocumentView:
         buffer_window_height = buffer_window_bottom - buffer_window_top
 
         # shrink buffer window it goes beyond the end of the buffer
-        buffer_window_bottom = min(buffer_window_bottom, len(self._document))
+        buffer_window_bottom = min(buffer_window_bottom, len(self.document))
 
         # grow buffer window if possible, shrink buffer window if needed
         available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
         if buffer_window_height <= available_screen_height:
             # move bottom as far down as possible
             buffer_window_bottom = min(
-                len(self._document), buffer_window_top + available_screen_height
+                len(self.document), buffer_window_top + available_screen_height
             )
             buffer_window_height = buffer_window_bottom - buffer_window_top
             assert 0 <= buffer_window_height <= available_screen_height
@@ -119,7 +124,7 @@ class DocumentView:
         self._assert_view_parameters_consistency()
 
     def _assert_view_parameters_consistency(self) -> None:
-        assert self._document is not None
+        assert self.document is not None
 
         buffer_window_top, buffer_window_bottom = self._buffer_window
         buffer_window_height = buffer_window_bottom - buffer_window_top
@@ -127,7 +132,7 @@ class DocumentView:
         available_screen_height = self.get_window_height() - STATUS_LINE_HEIGHT
 
         assert 0 <= buffer_window_height <= available_screen_height
-        assert 0 <= buffer_window_top <= self._line < buffer_window_bottom <= len(self._document)
+        assert 0 <= buffer_window_top <= self._line < buffer_window_bottom <= len(self.document)
 
     def draw(self, *, bottom_line_right: str = "") -> None:
         self._window.erase()
@@ -150,13 +155,13 @@ class DocumentView:
         self._window.noutrefresh()
 
     def _draw_document(self) -> None:
-        if self._document is None:
+        if self.document is None:
             return
 
         first, last = self._buffer_window
 
         for screen_line_number, buffer_line_number in zip(range(last - first), range(first, last)):
-            line = self._document[buffer_line_number]
+            line = self.document[buffer_line_number]
             self._window.addstr(screen_line_number, 0, line)
 
             line_hls = self.highlights[buffer_line_number] if self.highlights else []

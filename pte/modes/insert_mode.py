@@ -35,7 +35,7 @@ class InsertMode(Mode):
         self._document_buffer.cursor.allow_extra_column = True
         self._document_buffer.highlighter.update()
 
-        self._view.document_view.set_document(list(self._document_buffer.document))
+        self._view.document_view.document = list(self._document_buffer.document)
         self._view.document_view.status = self.name
         self._view.document_view.status_color = colors.GREEN
 
@@ -47,7 +47,7 @@ class InsertMode(Mode):
         if not self._document_buffer:
             raise NotImplementedError("Cannot run insert mode without active buffer.")
 
-        self._view.document_view.set_document(list(self._document_buffer.document))
+        self._view.document_view.document = list(self._document_buffer.document)
         self._view.document_view.set_cursor(
             self._document_buffer.cursor.line, self._document_buffer.cursor.column
         )

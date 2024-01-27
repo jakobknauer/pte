@@ -102,6 +102,7 @@ class Document:
             return
         del self._lines[line_number]
 
+    @property
     def text(self) -> str:
         return "\n".join(self._lines)
 
