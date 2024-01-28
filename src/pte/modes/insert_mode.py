@@ -78,7 +78,8 @@ class InsertMode(Mode):
             case [c] if c == RETURN:
                 self._command_buffer.clear()
                 document.split_line(line_number=cursor.line, column_number=cursor.column)
-                cursor.set(line=cursor.line + 1, column=0)
+                cursor.move_down()
+                cursor.column = 0
                 return TransitionType.STAY
 
             case [c] if c == TAB:
@@ -104,17 +105,17 @@ class InsertMode(Mode):
 
                 return TransitionType.STAY
 
-            case [c] if c == BACKSPACE:
+            case [c] if c == BACKSPACE and cursor.column > 0:
                 self._command_buffer.clear()
-                if cursor.column > 0:
-                    document.delete_in_line(
-                        line_number=cursor.line, column_number=cursor.column - 1
-                    )
-                    cursor.move_left()
-                elif cursor.line > 0:
-                    first_line_length = document.get_line_length(cursor.line - 1)
-                    document.join_lines(cursor.line - 1)
-                    cursor.set(cursor.line - 1, first_line_length)
+                document.delete_in_line(line_number=cursor.line, column_number=cursor.column - 1)
+                cursor.move_left()
+                return TransitionType.STAY
+
+            case [c] if c == BACKSPACE and cursor.line > 0:
+                self._command_buffer.clear()
+                first_line_length = document.get_line_length(cursor.line - 1)
+                document.join_lines(cursor.line - 1)
+                cursor.set(cursor.line - 1, first_line_length)
                 return TransitionType.STAY
 
             case _:
