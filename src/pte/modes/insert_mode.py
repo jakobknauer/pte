@@ -27,7 +27,7 @@ class InsertMode(Mode):
 
         self._document_buffer: DocumentBuffer | None = None
 
-    def enter(self) -> None:
+    def enter(self, **_: object) -> None:
         if not self._document_buffer_manager.active_buffer:
             raise NotImplementedError("Cannot run insert mode without active buffer.")
 

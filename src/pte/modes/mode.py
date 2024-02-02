@@ -10,7 +10,7 @@ class Mode(ABC):
         self._logger = logger or logging.getLogger()
 
     @abstractmethod
-    def enter(self) -> None:
+    def enter(self, **kwargs: object) -> None:
         ...
 
     @abstractmethod

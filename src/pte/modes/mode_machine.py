@@ -10,10 +10,10 @@ class ModeMachine:
         self._modes = {mode.name: mode for mode in modes}
         self._logger = logger or logging.getLogger(__name__)
 
-    def switch_mode(self, new_mode: Mode | None) -> None:
+    def switch_mode(self, new_mode: Mode | None, **kwargs: object) -> None:
         old_mode = self._mode
 
-        self.info(f"Transitioning from {old_mode} to {new_mode}.")
+        self.info(f"Transitioning from {old_mode} to {new_mode} with arguments {kwargs}.")
 
         if old_mode:
             old_mode.leave()
@@ -21,7 +21,7 @@ class ModeMachine:
         self._mode = new_mode
 
         if new_mode:
-            new_mode.enter()
+            new_mode.enter(**kwargs)
 
         self.debug(f"Transitioned from {old_mode} to {new_mode}.")
 
@@ -53,7 +53,16 @@ class ModeMachine:
                     self.switch_mode(new_mode)
                     continue
 
-                case (TransitionType.SWITCH, str(name)):
+                case (TransitionType.SWITCH, str(name), dict(kwargs)) if name in self._modes:
+                    new_mode = self._modes[name]
+                    self.switch_mode(new_mode, **kwargs)
+                    continue
+
+                case (TransitionType.SWITCH, str(name)) | (
+                    TransitionType.SWITCH,
+                    str(name),
+                    dict(_),
+                ):
                     self.error(f"Transition to unknown mode with name '{name}' requested.")
                     raise NotImplementedError(
                         f"Transition to unknown mode with name '{name}' requested."

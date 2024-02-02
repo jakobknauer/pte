@@ -7,4 +7,4 @@ from pte import colors
 class Highlight:
     column: int
     length: int
-    foreground: colors.Color
+    color: colors.Color

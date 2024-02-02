@@ -96,7 +96,7 @@ class DocumentView:
                     screen_line_number,
                     hl.column,
                     line[hl.column : hl.column + hl.length],
-                    curses.color_pair(hl.foreground),
+                    curses.color_pair(hl.color),
                 )
 
         self._window.noutrefresh()

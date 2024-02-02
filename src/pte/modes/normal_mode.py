@@ -17,7 +17,7 @@ class NormalMode(Mode):
 
         self._document_buffer: DocumentBuffer | None = None
 
-    def enter(self) -> None:
+    def enter(self, **_: object) -> None:
         if self._document_buffer_manager.active_buffer:
             self._document_buffer = self._document_buffer_manager.active_buffer
             self._document_buffer.cursor.allow_extra_column = False
@@ -83,6 +83,7 @@ _COMMANDS = {
     ("O",),
     # switch to command mode
     (":",),
+    ("/",),
     # quitting
     ("Z", "Z"),
     ("Z", "Q"),
@@ -210,6 +211,9 @@ class _CommandExecutor:
 
             case (":",):
                 return (TransitionType.SWITCH, "COMMAND MODE")
+
+            case ("/",):
+                return (TransitionType.SWITCH, "COMMAND MODE", {"command": "search "})
 
             case ("Z", "Z"):
                 if active_buffer:

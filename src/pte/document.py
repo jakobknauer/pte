@@ -116,5 +116,8 @@ class Document:
 
         return line_number, index - char_counter
 
+    def get_index(self, line: int, column: int) -> int:
+        return sum(len(l) + 1 for l in self._lines[:line]) + column
+
     def subscribe(self, handler: Callable[[], None]) -> None:
         self._subscribers.append(handler)

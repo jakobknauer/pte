@@ -42,12 +42,17 @@ def get_args() -> argparse.Namespace:
 def run(stdscr: curses.window, args: argparse.Namespace) -> None:
     log.info("Starting up...")
 
-    log.info("Setting up view.")
-
+    log.info("Setting up colors.")
     curses.set_escdelay(1)
     curses.use_default_colors()
-    for i in range(0, curses.COLORS):
-        curses.init_pair(i + 1, i, -1)
+    for fg in range(16):
+        curses.init_pair(fg + 1, fg, -1)
+    for bg in range(8):
+        curses.init_pair(bg + 17, -1, bg)
+    for bg in range(8):
+        curses.init_pair(bg + 25, 0, bg)
+
+    log.info("Setting up view.")
     view = MainView(stdscr)
 
     log.info("Setting up document buffer manager.")

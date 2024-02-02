@@ -7,4 +7,9 @@ class TransitionType(Enum):
     QUIT = auto()
 
 
-Transition = TransitionType | tuple[TransitionType, str] | None
+Transition = (
+    TransitionType
+    | tuple[TransitionType, str]
+    | tuple[TransitionType, str, dict[str, object]]
+    | None
+)
