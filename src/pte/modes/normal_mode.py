@@ -169,7 +169,7 @@ class _CommandExecutor:
 
             case ("d", "d") if active_buffer and not document.is_empty:
                 document.delete_line(cursor.line)
-                cursor.line = min(cursor.line, cursor.line)
+                cursor.line = min(cursor.line, cursor.max_line)
                 cursor.column = 0
                 return TransitionType.STAY
 
