@@ -1,7 +1,7 @@
 from functools import wraps
 import logging
 from pathlib import Path
-from typing import Iterator, Callable, TypeVar, ParamSpec, Concatenate
+from typing import Callable, Concatenate, Iterator, ParamSpec, TypeVar
 
 
 log = logging.getLogger(__name__)

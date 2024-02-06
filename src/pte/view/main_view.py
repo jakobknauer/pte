@@ -1,7 +1,7 @@
 import curses
 
-from .document_view import DocumentView
 from .command_line_view import CommandLineView
+from .document_view import DocumentView
 
 
 class MainView:

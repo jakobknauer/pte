@@ -1,9 +1,9 @@
-from pathlib import Path
 import logging
+from pathlib import Path
 
 from .document import Document
 from .document_buffer import DocumentBuffer
-from .syntax_highlighting import SyntaxHighlighter, PythonHighlighter
+from .syntax_highlighting import PythonHighlighter, SyntaxHighlighter
 
 
 log = logging.getLogger(__name__)

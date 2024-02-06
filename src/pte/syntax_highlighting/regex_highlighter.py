@@ -2,9 +2,9 @@ import logging
 import re
 from typing import Pattern
 
-from pte.highlight import Highlight
-from pte.document_buffer import DocumentBuffer
 from pte import colors
+from pte.document_buffer import DocumentBuffer
+from pte.highlight import Highlight
 
 
 log = logging.getLogger(__name__)

@@ -2,10 +2,10 @@
 
 import argparse
 import curses
+from importlib import metadata
 import logging
 import os
 from pathlib import Path
-from importlib import metadata
 
 from pte import modes
 from pte.document_buffer_manager import DocumentBufferManager

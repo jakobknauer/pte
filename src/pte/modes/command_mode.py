@@ -1,13 +1,13 @@
-import string
 from pathlib import Path
 import re
+import string
 
 from pte import colors
-from pte.document_buffer_manager import DocumentBufferManager
 from pte.document_buffer import DocumentBuffer
-from pte.view import MainView
-from pte.syntax_highlighting import SyntaxHighlighter, NoOpHighlighter
+from pte.document_buffer_manager import DocumentBufferManager
+from pte.syntax_highlighting import NoOpHighlighter, SyntaxHighlighter
 from pte.syntax_highlighting.regex_highlighter import RegexHighlighter
+from pte.view import MainView
 
 from .mode import Mode
 from .transition import Transition, TransitionType

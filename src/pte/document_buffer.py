@@ -1,6 +1,6 @@
 from .cursor import Cursor
 from .document import Document
-from .syntax_highlighting import SyntaxHighlighter, NoOpHighlighter
+from .syntax_highlighting import NoOpHighlighter, SyntaxHighlighter
 
 
 class DocumentBuffer:

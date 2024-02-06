@@ -4,9 +4,9 @@ import logging
 from pygments.lexers.python import PythonLexer
 from pygments.token import Token, _TokenType
 
+from pte import colors
 from pte.document import Document
 from pte.highlight import Highlight
-from pte import colors
 
 
 log = logging.getLogger(__name__)
