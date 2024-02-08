@@ -42,7 +42,7 @@ def get_args() -> argparse.Namespace:
 def run(stdscr: curses.window, args: argparse.Namespace) -> None:
     log.info("Starting up...")
 
-    log.info("Setting up colors.")
+    log.info("Initializing colors.")
     curses.set_escdelay(1)
     curses.use_default_colors()
     for fg in range(16):
@@ -56,22 +56,18 @@ def run(stdscr: curses.window, args: argparse.Namespace) -> None:
     view = MainView(stdscr)
 
     log.info("Setting up document buffer manager.")
-
     document_buffer_manager = DocumentBufferManager()
 
-    log.info("Setting up modes.")
+    log.info("Initializing buffers.")
+    if args.filename:
+        document_buffer_manager.load_file(Path(args.filename))
 
+    log.info("Setting up modes.")
     normal = modes.NormalMode(document_buffer_manager, view)
     insert = modes.InsertMode(document_buffer_manager, view)
     command = modes.CommandMode(document_buffer_manager, view)
 
-    log.info("Initializing buffers.")
-
-    if args.filename:
-        document_buffer_manager.load_file(Path(args.filename))
-
     log.info("Run mode machine.")
-
     mode_machine = modes.ModeMachine(normal, insert, command)
     mode_machine.switch_mode(normal)
     mode_machine.run()
