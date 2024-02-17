@@ -36,11 +36,11 @@ class InsertMode(Mode):
         self._document_buffer.highlighter.update()
 
         self._view.document_view.document = list(self._document_buffer.document)
-        self._view.document_view.status = self.name
-        self._view.document_view.status_color = colors.GREEN
+        self._view.status_line_view.status = self.name
+        self._view.status_line_view.status_color = colors.GREEN
 
     def leave(self) -> None:
-        self._view.document_view.status = f"LEFT {self.name}"
+        self._view.status_line_view.status = f"LEFT {self.name}"
         self._command_buffer.clear()
 
     def draw(self) -> None:

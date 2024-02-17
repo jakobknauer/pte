@@ -23,11 +23,11 @@ class NormalMode(Mode):
             self._document_buffer.cursor.allow_extra_column = False
             self._document_buffer.highlighter.update()
 
-        self._view.document_view.status = self.name
-        self._view.document_view.status_color = colors.CYAN
+        self._view.status_line_view.status = self.name
+        self._view.status_line_view.status_color = colors.CYAN
 
     def leave(self) -> None:
-        self._view.document_view.status = f"LEFT {self.name}"
+        self._view.status_line_view.status = f"LEFT {self.name}"
         self._command_buffer.clear()
 
     def draw(self) -> None:

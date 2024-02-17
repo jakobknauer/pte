@@ -1,14 +1,10 @@
 import curses
 import logging
 
-from pte import colors
 from pte.highlight import Highlight
 
 
 log = logging.getLogger(__name__)
-
-
-STATUS_LINE_HEIGHT = 1
 
 
 class DocumentView:
@@ -18,8 +14,7 @@ class DocumentView:
 
         # view content
         self._document: list[str] | None = None
-        self.status: str = ""
-        self.status_color: colors.Color = colors.DEFAULT
+        self.highlights: list[list[Highlight]] = []
 
         # the part of the buffer currently visible on screen, represented by the number of the
         # first visible line, and the the number of the first non-visible line below that.
@@ -28,8 +23,6 @@ class DocumentView:
         # cursor position
         self._line: int = 0
         self._column: int = 0
-
-        self.highlights: list[list[Highlight]] = []
 
     @property
     def document(self) -> list[str] | None:
@@ -59,26 +52,10 @@ class DocumentView:
         self._window.resize(height, width)
         self._consolidate_view_parameters()
 
-    def draw(self, *, bottom_line_right: str = "") -> None:
+    def draw(self) -> None:
         self._consolidate_view_parameters()
         self._window.erase()
-        self._draw_status_line(bottom_line_right)
         self._draw_document()
-
-    def _draw_status_line(self, bottom_line_right: str) -> None:
-        status_line_number = self.window_height - STATUS_LINE_HEIGHT
-        self._window.addstr(
-            status_line_number,
-            0,
-            f" {self.status} ",
-            curses.color_pair(self.status_color) ^ curses.A_REVERSE ^ curses.A_BOLD,
-        )
-        self._window.addstr(
-            status_line_number,
-            self.window_width - 1 - len(bottom_line_right),
-            bottom_line_right,
-        )
-        self._window.noutrefresh()
 
     def _draw_document(self) -> None:
         if self.document is None:
@@ -136,7 +113,7 @@ class DocumentView:
         buffer_window_bottom = min(buffer_window_bottom, len(self.document))
 
         # grow buffer window if possible, shrink buffer window if needed
-        available_screen_height = self.window_height - STATUS_LINE_HEIGHT
+        available_screen_height = self.window_height
         if buffer_window_height <= available_screen_height:
             # move bottom as far down as possible
             buffer_window_bottom = min(
@@ -187,7 +164,7 @@ class DocumentView:
         buffer_window_top, buffer_window_bottom = self._buffer_window
         buffer_window_height = buffer_window_bottom - buffer_window_top
 
-        available_screen_height = self.window_height - STATUS_LINE_HEIGHT
+        available_screen_height = self.window_height
 
         assert 0 <= buffer_window_height <= available_screen_height
         assert 0 <= buffer_window_top <= self._line < buffer_window_bottom <= len(self.document)

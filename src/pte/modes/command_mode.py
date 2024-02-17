@@ -34,13 +34,13 @@ class CommandMode(Mode):
 
         self._command_previewer.reset()
 
-        self._view.document_view.status = self.name
-        self._view.document_view.status_color = colors.YELLOW
+        self._view.status_line_view.status = self.name
+        self._view.status_line_view.status_color = colors.YELLOW
         self._view.command_line_view.command = ""
         self._view.command_line_view.active = True
 
     def leave(self) -> None:
-        self._view.document_view.status = f"LEFT {self.name}"
+        self._view.status_line_view.status = f"LEFT {self.name}"
         self._view.command_line_view.active = False
         self._view.command_line_view.clear()
 
