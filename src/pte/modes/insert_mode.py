@@ -35,25 +35,22 @@ class InsertMode(Mode):
         self._document_buffer.cursor.allow_extra_column = True
         self._document_buffer.highlighter.update()
 
-        self._view.document_view.document = list(self._document_buffer.document)
-        self._view.status_line_view.status = self.name
-        self._view.status_line_view.status_color = colors.GREEN
+        self._view.document = list(self._document_buffer.document)
+        self._view.status = self.name
+        self._view.status_color = colors.GREEN
 
     def leave(self) -> None:
-        self._view.status_line_view.status = f"LEFT {self.name}"
+        self._view.status = f"LEFT {self.name}"
         self._command_buffer.clear()
 
     def draw(self) -> None:
         if not self._document_buffer:
             raise NotImplementedError("Cannot run insert mode without active buffer.")
 
-        self._view.document_view.document = list(self._document_buffer.document)
-        self._view.document_view.cursor = (
-            self._document_buffer.cursor.line,
-            self._document_buffer.cursor.column,
-        )
+        self._view.document = list(self._document_buffer.document)
+        self._view.cursor = (self._document_buffer.cursor.line, self._document_buffer.cursor.column)
 
-        self._view.document_view.highlights = [
+        self._view.highlights = [
             self._document_buffer.highlighter.get_highlights(line)
             for line in range(self._document_buffer.document.number_of_lines())
         ]

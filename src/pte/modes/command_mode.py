@@ -34,24 +34,23 @@ class CommandMode(Mode):
 
         self._command_previewer.reset()
 
-        self._view.status_line_view.status = self.name
-        self._view.status_line_view.status_color = colors.YELLOW
-        self._view.command_line_view.command = ""
-        self._view.command_line_view.active = True
+        self._view.status = self.name
+        self._view.status_color = colors.YELLOW
+        self._view.command = ""
+        self._view.show_command_line = True
 
     def leave(self) -> None:
-        self._view.status_line_view.status = f"LEFT {self.name}"
-        self._view.command_line_view.active = False
-        self._view.command_line_view.clear()
+        self._view.status = f"LEFT {self.name}"
+        self._view.show_command_line = False
 
     def draw(self) -> None:
-        self._view.command_line_view.command = "".join(self._command_buffer)
+        self._view.command = "".join(self._command_buffer)
 
         if self._document_buffer_manager.active_buffer:
             number_of_lines = self._document_buffer_manager.active_buffer.document.number_of_lines()
             syntax_highlighter = self._document_buffer_manager.active_buffer.highlighter
             search_highlighter = self._command_previewer.highlighter
-            self._view.document_view.highlights = [
+            self._view.highlights = [
                 syntax_highlighter.get_highlights(line) + search_highlighter.get_highlights(line)
                 for line in range(number_of_lines)
             ]

@@ -13,7 +13,7 @@ class DocumentView:
         self._window = window
 
         # view content
-        self._document: list[str] | None = None
+        self.document: list[str] | None = None
         self.highlights: list[list[Highlight]] = []
 
         # the part of the buffer currently visible on screen, represented by the number of the
@@ -23,14 +23,6 @@ class DocumentView:
         # cursor position
         self._line: int = 0
         self._column: int = 0
-
-    @property
-    def document(self) -> list[str] | None:
-        return self._document
-
-    @document.setter
-    def document(self, lines: list[str]) -> None:
-        self._document = lines
 
     @property
     def cursor(self) -> tuple[int, int]:
