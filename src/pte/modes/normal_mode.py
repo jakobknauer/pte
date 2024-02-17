@@ -84,6 +84,7 @@ _COMMANDS = {
     # switch to command mode
     (":",),
     ("/",),
+    ("\x12",),
     # quitting
     ("Z", "Z"),
     ("Z", "Q"),
@@ -214,6 +215,9 @@ class _CommandExecutor:
 
             case ("/",):
                 return (TransitionType.SWITCH, "COMMAND MODE", {"command": "search "})
+
+            case ("\x12",):
+                return (TransitionType.SWITCH, "COMMAND MODE", {"command": "replace "})
 
             case ("Z", "Z"):
                 if active_buffer:

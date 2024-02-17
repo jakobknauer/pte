@@ -16,6 +16,7 @@ from .transition import Transition, TransitionType
 ESCAPE = "\x1b"
 ENTER = ["KEY_ENTER", "\n", "\r"]
 BACKSPACE = "KEY_BACKSPACE"
+CTRL_R = "\x12"
 
 
 class CommandMode(Mode):
@@ -62,16 +63,16 @@ class CommandMode(Mode):
             case "":
                 return TransitionType.STAY
 
-            case c if c == ESCAPE:
+            case str(c) if c == ESCAPE:
                 self._command_buffer.clear()
                 return (TransitionType.SWITCH, "NORMAL MODE")
 
-            case c if c in ENTER:
+            case str(c) if c in ENTER:
                 transition = self._command_executor.execute(self._command_buffer)
                 self._command_buffer.clear()
                 return transition
 
-            case c if c == BACKSPACE:
+            case str(c) if c == BACKSPACE:
                 if self._command_buffer:
                     del self._command_buffer[-1]
                     self._command_previewer.update(self._command_buffer)
@@ -79,10 +80,19 @@ class CommandMode(Mode):
                 else:
                     return (TransitionType.SWITCH, "NORMAL MODE")
 
-            case c if c in string.printable:
+            case str(c) if c in string.printable:
                 self._command_buffer.append(c)
                 self._command_previewer.update(self._command_buffer)
                 return TransitionType.STAY
+
+            case str(s) if s == CTRL_R:
+                parts = "".join(self._command_buffer).split()
+                if len(parts) > 0 and parts[0] == "search":
+                    parts[0] = "replace"
+                    self._command_buffer = list(" ".join(parts))
+                    self._command_previewer.update(self._command_buffer)
+                    return TransitionType.STAY
+                return (TransitionType.SWITCH, "NORMAL MODE")
 
             case _:
                 self._command_buffer.clear()
@@ -99,7 +109,11 @@ class _CommandPreviewer:
         parts = "".join(command).split()
 
         match parts:
-            case ["search", str(pattern)] if active_buffer:
+            case ["search", str(pattern)] | ["replace", str(pattern)] | [
+                "replace",
+                str(pattern),
+                _,
+            ] if active_buffer:
                 self.highlighter = RegexHighlighter(active_buffer, pattern)
                 self.highlighter.update()
 
@@ -140,6 +154,10 @@ class _CommandExecutor:
 
             case ["search", str(pattern)] if active_buffer:
                 self._move_to_next_match(active_buffer, pattern)
+                return (TransitionType.SWITCH, "NORMAL MODE")
+
+            case ["replace", str(pattern), str(substitute)] if active_buffer:
+                active_buffer.document.replace(pattern, substitute)
                 return (TransitionType.SWITCH, "NORMAL MODE")
 
             case _:

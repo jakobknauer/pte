@@ -1,6 +1,7 @@
 from functools import wraps
 import logging
 from pathlib import Path
+import re
 from typing import Callable, Concatenate, Iterator, ParamSpec, TypeVar
 
 
@@ -101,6 +102,11 @@ class Document:
             log.warning(f"Cannot delete line {line_number}.")
             return
         del self._lines[line_number]
+
+    @_modifies_document
+    def replace(self, pattern: str, substitute: str) -> None:
+        compiled_pattern = re.compile(pattern)
+        self._lines = [compiled_pattern.sub(substitute, line) for line in self._lines]
 
     @property
     def text(self) -> str:
