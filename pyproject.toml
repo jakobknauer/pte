@@ -1,6 +1,6 @@
 [project]
 name = "pte"
-version = "0.2.0"
+version = "0.3.0"
 description = "A modal command-line text editor written in Python"
 authors = [{name = "Jakob Knauer"}]
 dynamic = ["dependencies"]
