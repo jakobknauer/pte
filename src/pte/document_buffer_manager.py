@@ -3,7 +3,7 @@ from pathlib import Path
 
 from .document import Document
 from .document_buffer import DocumentBuffer
-from .syntax_highlighting import PythonHighlighter, SyntaxHighlighter
+from .syntax_highlighting import PygmentsHighlighter, SyntaxHighlighter
 
 
 log = logging.getLogger(__name__)
@@ -26,11 +26,7 @@ class DocumentBufferManager:
             log.info(f"Successfully loaded file '{path}'.")
 
         new_document = Document(lines, path)
-
-        highlighter: SyntaxHighlighter | None = None
-        if path.suffix == ".py":
-            highlighter = PythonHighlighter(new_document)
-
+        highlighter = PygmentsHighlighter(new_document)
         new_buffer = DocumentBuffer(new_document, highlighter=highlighter)
         self.buffers.append(new_buffer)
         self.active_buffer = new_buffer

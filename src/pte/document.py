@@ -127,3 +127,7 @@ class Document:
 
     def subscribe(self, handler: Callable[[], None]) -> None:
         self._subscribers.append(handler)
+
+    def unsubscribe(self, handler: Callable[[], None]) -> None:
+        if handler in self._subscribers:
+            self._subscribers.remove(handler)

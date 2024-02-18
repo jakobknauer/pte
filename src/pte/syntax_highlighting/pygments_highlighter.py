@@ -1,7 +1,7 @@
 from collections import defaultdict
 import logging
 
-from pygments.lexers.python import PythonLexer
+import pygments.lexers
 from pygments.token import Token, _TokenType
 
 from pte import colors
@@ -33,12 +33,18 @@ def _get_color_for_token_type(token_type: _TokenType) -> colors.Color | None:
     return None
 
 
-class PythonHighlighter:
-    def __init__(self, document: Document) -> None:
+class PygmentsHighlighter:
+    def __init__(self, document: Document, syntax_name: str | None = None) -> None:
         self._document = document
-        self._lexer = PythonLexer()
         self._highlights: defaultdict[int, list[Highlight]] = defaultdict(list)
-        document.subscribe(self.update)
+
+        self._lexer: pygments.lexer.Lexer
+        if syntax_name is not None:
+            self._lexer = pygments.lexers.get_lexer_by_name(syntax_name)
+            log.info(f"Chose lexer with name '{self._lexer.name}'.")  # type: ignore[attr-defined]
+        else:
+            self._lexer = pygments.lexers.guess_lexer(document.text)
+            log.info(f"Guessed lexer with name '{self._lexer.name}'.")  # type: ignore[attr-defined]
 
     def update(self) -> None:
         code = self._document.text
@@ -59,3 +65,6 @@ class PythonHighlighter:
 
     def get_highlights(self, line: int) -> list[Highlight]:
         return self._highlights.get(line, [])
+
+    def __str__(self) -> str:
+        return f"{type(self).__name__} with lexer '{self._lexer.name}'"  # type: ignore[attr-defined]

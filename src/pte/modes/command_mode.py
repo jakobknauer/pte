@@ -5,7 +5,11 @@ import string
 from pte import colors
 from pte.document_buffer import DocumentBuffer
 from pte.document_buffer_manager import DocumentBufferManager
-from pte.syntax_highlighting import NoOpHighlighter, SyntaxHighlighter
+from pte.syntax_highlighting import (
+    NoOpHighlighter,
+    PygmentsHighlighter,
+    SyntaxHighlighter,
+)
 from pte.syntax_highlighting.regex_highlighter import RegexHighlighter
 from pte.view import MainView
 
@@ -157,6 +161,18 @@ class _CommandExecutor:
 
             case ["replace", str(pattern), str(substitute)] if active_buffer:
                 active_buffer.document.replace(pattern, substitute)
+                return (TransitionType.SWITCH, "NORMAL MODE")
+
+            case ["nosyntax"] if active_buffer:
+                active_buffer.highlighter = NoOpHighlighter()
+                return (TransitionType.SWITCH, "NORMAL MODE")
+
+            case ["syntax"] if active_buffer:
+                active_buffer.highlighter = PygmentsHighlighter(active_buffer.document)
+                return (TransitionType.SWITCH, "NORMAL MODE")
+
+            case ["syntax", str(syntax_name)] if active_buffer:
+                active_buffer.highlighter = PygmentsHighlighter(active_buffer.document, syntax_name)
                 return (TransitionType.SWITCH, "NORMAL MODE")
 
             case _:
