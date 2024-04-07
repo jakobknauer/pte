@@ -3,10 +3,24 @@ name = "pte"
 version = "0.3.0"
 description = "A modal command-line text editor written in Python"
 authors = [{name = "Jakob Knauer"}]
-dynamic = ["dependencies"]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.11"
+dependencies = [
+    "typing_extensions==4.9.0",
+   "Pygments==2.17.2",
+]
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+[project.optional-dependencies]
+dev = [
+    "black==23.12.1",
+    "isort==5.13.2",
+    "mypy==1.8.0",
+    "lxml==5.1.0",
+    "types-Pygments==2.17.0.20240106",
+    "pydeps==1.12.18",
+    "pylint==3.0.3",
+]
 
 [tool.black]
 line-length = 100
