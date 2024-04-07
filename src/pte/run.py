@@ -21,13 +21,22 @@ def set_up_logging() -> None:
 
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    log_directory = Path(os.environ["XDG_DATA_HOME"]) / "pte" / "log"
+    log_directory = get_log_directory()
     log_directory.mkdir(parents=True, exist_ok=True)
 
     fh = logging.FileHandler(log_directory / "log.txt", "w+")
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
+
+
+def get_log_directory() -> Path:
+    xdg_data_home_env = os.environ.get("XDG_DATA_HOME", None)
+    xdg_data_home = (
+        Path(xdg_data_home_env) if xdg_data_home_env else Path.home() / ".local" / "share"
+    )
+    log_directory = xdg_data_home / "pte" / "log"
+    return log_directory
 
 
 def get_args() -> argparse.Namespace:

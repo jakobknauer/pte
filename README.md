@@ -41,6 +41,8 @@ pte example.txt
 pte --version
 ```
 
+Logs will be written to `$XDG_DATA_HOME/pte/logs`, where `$XDG_DATA_HOME` defaults to `~/.local/share` if not defined.
+
 
 ### Modes
 
