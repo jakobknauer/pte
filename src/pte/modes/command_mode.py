@@ -112,11 +112,15 @@ class _CommandPreviewer:
         parts = "".join(command).split()
 
         match parts:
-            case ["search", str(pattern)] | ["replace", str(pattern)] | [
-                "replace",
-                str(pattern),
-                _,
-            ] if active_buffer:
+            case (
+                ["search", str(pattern)]
+                | ["replace", str(pattern)]
+                | [
+                    "replace",
+                    str(pattern),
+                    _,
+                ]
+            ) if active_buffer:
                 self.highlighter = RegexHighlighter(active_buffer, pattern)
                 self.highlighter.update()
 
