@@ -3,7 +3,7 @@ from pathlib import Path
 
 from .document import Document
 from .document_buffer import DocumentBuffer
-from .syntax_highlighting import PygmentsHighlighter, SyntaxHighlighter
+from .syntax_highlighting import PygmentsHighlighter
 
 
 log = logging.getLogger(__name__)
