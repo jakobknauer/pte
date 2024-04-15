@@ -110,3 +110,15 @@ The following commands are available:
 - `nosyntax`: Disable syntax highlighting for the document.
 
 You may use CTRL+R to switch from `search <pattern>` to `replace <pattern>`.
+
+
+## Gallery
+
+Normal Mode displaying the file src/pte/run.py with Python syntax highlighting
+![Normal Mode displaying the file src/pte/run.py with Python syntax highlighting](img/normal_mode.png)
+
+Insert Mode
+![Insert Mode](img/insert_mode.png)
+
+Command Mode with active search highlighting
+![Command Mode with active search highlighting](img/command_mode.png)
