@@ -108,9 +108,7 @@ class DocumentView:
         available_screen_height = self.window_height
         if buffer_window_height <= available_screen_height:
             # move bottom as far down as possible
-            buffer_window_bottom = min(
-                len(self.document), buffer_window_top + available_screen_height
-            )
+            buffer_window_bottom = min(len(self.document), buffer_window_top + available_screen_height)
             buffer_window_height = buffer_window_bottom - buffer_window_top
             assert 0 <= buffer_window_height <= available_screen_height
 

@@ -39,9 +39,7 @@ class DocumentBufferManager:
 
         path = path or self.active_buffer.document.path
         if not path:
-            log.error(
-                "Cannot save buffer, as path was neither provided as argument nor stored in buffer."
-            )
+            log.error("Cannot save buffer, as path was neither provided as argument nor stored in buffer.")
             return False
 
         log.info(f"Saving buffer to '{path}'.")

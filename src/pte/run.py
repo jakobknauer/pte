@@ -32,17 +32,13 @@ def set_up_logging() -> None:
 
 def get_log_directory() -> Path:
     xdg_data_home_env = os.environ.get("XDG_DATA_HOME", None)
-    xdg_data_home = (
-        Path(xdg_data_home_env) if xdg_data_home_env else Path.home() / ".local" / "share"
-    )
+    xdg_data_home = Path(xdg_data_home_env) if xdg_data_home_env else Path.home() / ".local" / "share"
     log_directory = xdg_data_home / "pte" / "log"
     return log_directory
 
 
 def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        prog="pte", description="A modal command-line text editor written in Python"
-    )
+    parser = argparse.ArgumentParser(prog="pte", description="A modal command-line text editor written in Python")
     parser.add_argument("filename", nargs="?")
     parser.add_argument("-v", "--version", action="version", version=metadata.version("pte"))
     return parser.parse_args()

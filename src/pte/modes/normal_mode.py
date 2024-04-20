@@ -99,8 +99,7 @@ class _CommandBuffer:
 
     def is_prefix(self) -> bool:
         return any(
-            len(self.store) <= len(command) and command[: len(self.store)] == tuple(self.store)
-            for command in _COMMANDS
+            len(self.store) <= len(command) and command[: len(self.store)] == tuple(self.store) for command in _COMMANDS
         )
 
     def append(self, key: str) -> None:

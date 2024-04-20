@@ -12,9 +12,7 @@ T = TypeVar("T")
 P = ParamSpec("P")
 
 
-def _modifies_document(
-    fn: Callable[Concatenate["Document", P], T]
-) -> Callable[Concatenate["Document", P], T]:
+def _modifies_document(fn: Callable[Concatenate["Document", P], T]) -> Callable[Concatenate["Document", P], T]:
     @wraps(fn)
     def wrapped_fn(self: "Document", *args: P.args, **kwargs: P.kwargs) -> T:
         return_value: T = fn(self, *args, **kwargs)
@@ -72,14 +70,10 @@ class Document:
     @_modifies_document
     def join_lines(self, first_line_number: int) -> None:
         if first_line_number < 0:
-            raise ValueError(
-                "Value of first_line_number must be greater than 0 "
-                "({first_line_number} provided)."
-            )
+            raise ValueError("Value of first_line_number must be greater than 0 " "({first_line_number} provided).")
         if first_line_number >= len(self._lines):
             raise ValueError(
-                "Value of first_line_number must be lesser than {len(self._lines)} "
-                "({first_line_number} provided)."
+                "Value of first_line_number must be lesser than {len(self._lines)} " "({first_line_number} provided)."
             )
 
         if first_line_number + 1 >= len(self._lines):
