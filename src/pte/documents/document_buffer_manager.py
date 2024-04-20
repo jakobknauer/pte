@@ -1,9 +1,10 @@
 import logging
 from pathlib import Path
 
+from pte.syntax_highlighting import PygmentsHighlighter
+
 from .document import Document
 from .document_buffer import DocumentBuffer
-from .syntax_highlighting import PygmentsHighlighter
 
 
 log = logging.getLogger(__name__)

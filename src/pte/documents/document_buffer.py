@@ -1,8 +1,9 @@
 import logging
 
+from pte.syntax_highlighting import NoOpHighlighter, SyntaxHighlighter
+
 from .cursor import Cursor
 from .document import Document
-from .syntax_highlighting import NoOpHighlighter, SyntaxHighlighter
 
 
 log = logging.getLogger(__name__)

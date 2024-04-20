@@ -3,7 +3,7 @@ import re
 from typing import Pattern
 
 from pte import colors
-from pte.document_buffer import DocumentBuffer
+from pte.documents import DocumentBuffer
 from pte.highlight import Highlight
 
 

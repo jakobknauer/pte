@@ -5,7 +5,7 @@ import pygments.lexers
 from pygments.token import Token, _TokenType
 
 from pte import colors
-from pte.document import Document
+from pte.documents import Document
 from pte.highlight import Highlight
 
 

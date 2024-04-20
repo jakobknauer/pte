@@ -1,8 +1,7 @@
 import string
 
 from pte import colors
-from pte.document_buffer import DocumentBuffer
-from pte.document_buffer_manager import DocumentBufferManager
+from pte.documents import DocumentBuffer, DocumentBufferManager
 from pte.view import MainView
 
 from .mode import Mode

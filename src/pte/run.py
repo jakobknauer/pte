@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 
 from pte import modes
-from pte.document_buffer_manager import DocumentBufferManager
+from pte.documents import DocumentBufferManager
 from pte.view import MainView
 
 
